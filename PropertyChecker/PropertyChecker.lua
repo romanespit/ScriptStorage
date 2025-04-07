@@ -57,6 +57,7 @@ local ltn12 = require("ltn12")
 local iconv = require("iconv")
 local json = require("cjson")
 local io = require("io")
+local dlstatus = require("moonloader").download_status
 local dirml = getWorkingDirectory() -- Директория moonloader
 local dirscr = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/"
 local sx, sy = getScreenResolution() -- Разрешение экрана
@@ -1079,29 +1080,31 @@ function updateScript()
 end
 function updateCheck()
 	sms("Проверяем наличие обновлений...")
-		local dir = dirscr.."info.upd"
-		downloadUrlToFile(GitHub.UpdateFile, dir, function(id, status, p1, p2)
-			if status == dlstatus.STATUS_ENDDOWNLOADDATA then
-				lua_thread.create(function()
-					wait(1000)
-					if doesFileExist(dirscr.."info.upd") then
-						local f = io.open(dirscr.."info.upd", "r")
-						local upd = decodeJson(f:read("*a"))
-						f:close()
-						if type(upd) == "table" then
-							newversion = upd.version
-							newdate = upd.release_date
-							if upd.version == scr.version then
-								sms("Вы используете актуальную версию скрипта - v"..scr.version.." от "..newdate)
-							else
-								sms("Имеется обновление до версии v"..newversion.." от "..newdate.."! "..COLOR_YES.."/"..MAIN_CMD.."upd")
-                                needUpdate = true
-							end
-						end
-					end
-				end)
-			end
-		end)
+    sms(GitHub.UpdateFile)
+    local dir = dirscr.."info.upd"
+    sms(dir)
+    downloadUrlToFile(GitHub.UpdateFile, dir, function(id, status, p1, p2)
+        if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+            lua_thread.create(function()
+                wait(1000)
+                if doesFileExist(dirscr.."info.upd") then
+                    local f = io.open(dirscr.."info.upd", "r")
+                    local upd = decodeJson(f:read("*a"))
+                    f:close()
+                    if type(upd) == "table" then
+                        newversion = upd.version
+                        newdate = upd.release_date
+                        if upd.version == scr.version then
+                            sms("Вы используете актуальную версию скрипта - v"..scr.version.." от "..newdate)
+                        else
+                            sms("Имеется обновление до версии v"..newversion.." от "..newdate.."! "..COLOR_YES.."/"..MAIN_CMD.."upd")
+                            needUpdate = true
+                        end
+                    end
+                end
+            end)
+        end
+    end)
 end
 function sendTelegram(notification,msg)
 	if telegram.id ~= "" and telegram.token ~= "" then

@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit","Read1dno")
 script_name("Property Checker")
-script_version("1.0")
+script_version("1.0.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "PropertyChecker"

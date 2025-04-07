@@ -1080,9 +1080,7 @@ function updateScript()
 end
 function updateCheck()
 	sms("Проверяем наличие обновлений...")
-    sms(GitHub.UpdateFile)
     local dir = dirscr.."info.upd"
-    sms(dir)
     downloadUrlToFile(GitHub.UpdateFile, dir, function(id, status, p1, p2)
         if status == dlstatus.STATUS_ENDDOWNLOADDATA then
             lua_thread.create(function()

@@ -420,9 +420,9 @@ function main()
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned()
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
-    --loadAndSaveConfig() -- Загрузка и сохранение конфигурации при старте
+    loadAndSaveConfig() -- Загрузка и сохранение конфигурации при старте
 	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
-    --updateCheck() -- Проверка обновлений
+    updateCheck() -- Проверка обновлений
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)
     while true do

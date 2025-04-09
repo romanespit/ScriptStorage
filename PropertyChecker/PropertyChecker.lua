@@ -118,8 +118,28 @@ end
 function Logger(text)
     print(COLOR_YES..text)
 end
-function PlayAlert()
-    if doesFileExist(dirscr..'Alert.mp3') then setAudioStreamState(audio, 1) else addOneOffSound(0, 0, 0, 6401) end
+function CheckAndDownloadFiles()
+    needLoad = 0
+    NeedToLoad = {}
+    if not doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/extraFiles/EagleSans-Regular.ttf?raw=true',dirml..'/rmnsptScripts/EagleSans-Regular.ttf'}) needLoad = needLoad+1 end
+    if needLoad ~= 0 then
+        Logger("Требуется загрузка "..needLoad.." файлов. Начинаю скачивание...")
+        for k,v in ipairs(NeedToLoad) do
+            downloadUrlToFile(v[1], v[2], function(id, status, p1, p2)
+                if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+                    lua_thread.create(function()
+                        wait(1000)
+                        if doesFileExist(v[2]) then
+                            Logger("Успешная загрузка файла "..v[2]:match(".+(rmnsptScripts/.+)"))
+                            needLoad = needLoad-1
+                        end
+                    end)
+                end
+            end)
+        end
+    end
+    repeat wait(100) until needLoad == 0
+    if #NeedToLoad > 0 then sms("Загрузки необходимых файлов завершены. Перезагружаемся...") reloaded = true scr:reload() end
 end
 ------------------------ Script Directories
 if not doesDirectoryExist(dirml.."/rmnsptScripts/") then
@@ -152,7 +172,7 @@ imgui.OnInitialize(function()
     if doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then        
         imgui.GetIO().Fonts:Clear()
         imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 15, nil, glyph_ranges)
-    else Logger("Отсутствует файл EagleSans-Regular.ttf. Скачайте его из репозитория: https://github.com/romanespit/ScriptStorage/extraFiles") end
+    end
     imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 14, config, iconRanges)
     MimStyle()
 end)
@@ -421,6 +441,7 @@ end
 function main()
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned()
+    CheckAndDownloadFiles()
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
     loadAndSaveConfig() -- Загрузка и сохранение конфигурации при старте
 	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение

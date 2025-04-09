@@ -1,3 +1,4 @@
+-- Based on https://www.blast.hk/threads/216098/ script by Read1dno
 ------------------------ Main Variables
 script_author("romanespit","Read1dno")
 script_name("Property Checker")

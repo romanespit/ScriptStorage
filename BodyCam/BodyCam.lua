@@ -242,6 +242,24 @@ imgui.OnFrame(function() return SetState[0] end, -- Settings Frame
                 end
             end
             imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))
+
+            imgui.SameLine()
+
+            local text = u8('Команды скрипта')
+            local tSize = imgui.CalcTextSize(text)
+            local p = imgui.GetCursorScreenPos()
+            local DL = imgui.GetWindowDrawList()
+            local col = { 0xFFFF7700, 0xFFFF9900 }
+            if imgui.InvisibleButton("##commands", tSize) then
+                sms("Команды скрипта "..COLOR_MAIN..SCRIPT_SHORTNAME)
+                sms(COLOR_YES.."/bc{FFFFFF} - Вкл/Выкл запись бодикамеры")
+                sms(COLOR_YES.."/sc{FFFFFF} - Сделать скриншот")
+                sms(COLOR_YES.."/bcstatus{FFFFFF} - Статус бодикамеры")
+                sms(COLOR_YES.."/bcset{FFFFFF} - Настройки скрипта")
+            end
+            local color = imgui.IsItemHovered() and col[1] or col[2]
+            DL:AddText(p, color, text)
+            DL:AddLine(imgui.ImVec2(p.x, p.y + tSize.y), imgui.ImVec2(p.x + tSize.x, p.y + tSize.y), color)
         imgui.End()
     end
 )
@@ -256,7 +274,6 @@ function RegisterScriptCommands()
     sampRegisterChatCommand(MAIN_CMD, function() SwitchRecording() end)
     sampRegisterChatCommand(MAIN_CMD.."set", function() SetState[0] = not SetState[0] end)
     sampRegisterChatCommand(MAIN_CMD.."status", function() 
-    --[[Recording os.date('%H:%M:%S', 75600 + (os.time()-RecordStartTime))]]
         if ini.main.RP then
             if thread:status() ~= "dead" then thread:terminate() end
             thread = lua_thread.create(function ()
@@ -291,14 +308,13 @@ function RegisterScriptCommands()
     end)
     
     sampRegisterChatCommand(MAIN_CMD.."rl", function() sms("Перезагружаемся...") reloaded = true scr:reload() end) -- Перезагрузка скрипта
-    sampRegisterChatCommand(MAIN_CMD.."help", function() sms("Команды скрипта "..COLOR_MAIN..SCRIPT_SHORTNAME) sms(COLOR_YES.."/bc{FFFFFF} - Вкл/Выкл запись бодикамеры") sms(COLOR_YES.."/sc{FFFFFF} - Сделать скриншот") sms(COLOR_YES.."/bcstatus{FFFFFF} - Статус бодикамеры") sms(COLOR_YES.."/bcset{FFFFFF} - Настройки скрипта") end)
     Logger("Успешная регистрация команд скрипта")
 end
 ------------------------ Main Function
 function main()
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned()
-	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/bchelp{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
+	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN ..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)

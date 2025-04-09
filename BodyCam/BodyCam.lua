@@ -54,6 +54,7 @@ encoding.default = 'cp1251'
 u8 = encoding.UTF8
 local faicons = require('fAwesome6')
 local imgui = require 'mimgui'
+local dlstatus = require("moonloader").download_status
 local dirml = getWorkingDirectory() -- Директория moonloader
 local dirscr = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/"
 local sx, sy = getScreenResolution() -- Разрешение экрана
@@ -64,6 +65,8 @@ local Recording = false
 local RecordStartTime = nil
 local ScreenProcess = false
 local posedit = false
+local NeedToLoad = {}
+local needLoad = 0
 
 local VK_LWIN = 0x5B
 local VK_LMENU = 0xA4
@@ -86,6 +89,12 @@ local ini = inicfg.load(inicfg.load({
     }
 }, directIni))
 inicfg.save(ini, directIni)
+function sms(text)
+    sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
+end
+function Logger(text)
+    print(COLOR_YES..text)
+end
 ------------------------ Script Directories
 if not doesDirectoryExist(dirml.."/rmnsptScripts/") then
     createDirectory(dirml.."/rmnsptScripts/")
@@ -95,8 +104,8 @@ if not doesDirectoryExist(dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/") then
     createDirectory(dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/")
     Logger("Директория rmnsptScripts/"..SCRIPT_SHORTNAME.." не была найдена. Успешное создание")
 end
-if doesFileExist(dirscr..'alert.mp3') then
-    audio = loadAudioStream(dirscr..'alert.mp3')
+if doesFileExist(dirml..'/rmnsptScripts/Alert.mp3') then
+    audio = loadAudioStream(dirml..'/rmnsptScripts/Alert.mp3')
     setAudioStreamVolume(audio, 0.1)
 end
 ------------------------ MimGUI Variables
@@ -121,6 +130,39 @@ local LogoSize = {
     {45,45},
     {30,30}
 }
+
+function CheckAndDownloadFiles()
+    needLoad = 0
+    NeedToLoad = {}
+    if not doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/extraFiles/EagleSans-Regular.ttf?raw=true',dirml..'/rmnsptScripts/EagleSans-Regular.ttf'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirml..'/rmnsptScripts/Alert.mp3') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/extraFiles/Alert.mp3?raw=true',dirml..'/rmnsptScripts/Alert.mp3'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirscr..'AxonLogo.png') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/rmnsptScripts/BodyCam/AxonLogo.png?raw=true',dirscr..'AxonLogo.png'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirscr..'Camera.png') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/rmnsptScripts/BodyCam/Camera.png?raw=true',dirscr..'Camera.png'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirscr..'blackdot.png') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/rmnsptScripts/BodyCam/blackdot.png?raw=true',dirscr..'blackdot.png'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirscr..'reddot.png') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/rmnsptScripts/BodyCam/reddot.png?raw=true',dirscr..'reddot.png'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirscr..'engine.png') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/rmnsptScripts/BodyCam/engine.png?raw=true',dirscr..'engine.png'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirscr..'redengine.png') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/rmnsptScripts/BodyCam/redengine.png?raw=true',dirscr..'redengine.png'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirscr..'siren.png') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/rmnsptScripts/BodyCam/siren.png?raw=true',dirscr..'siren.png'}) needLoad = needLoad+1 end
+    if not doesFileExist(dirscr..'onfoot.png') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/rmnsptScripts/BodyCam/onfoot.png?raw=true',dirscr..'onfoot.png'}) needLoad = needLoad+1 end
+    if needLoad ~= 0 then
+        Logger("Требуется загрузка "..needLoad.." файлов. Начинаю скачивание...")
+        for k,v in ipairs(NeedToLoad) do
+            downloadUrlToFile(v[1], v[2], function(id, status, p1, p2)
+                if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+                    lua_thread.create(function()
+                        wait(1000)
+                        if doesFileExist(v[2]) then
+                            Logger("Успешная загрузка файла "..v[2]:match(".+(rmnsptScripts/.+)"))
+                            needLoad = needLoad-1
+                        end
+                    end)
+                end
+            end)
+        end
+    end
+    repeat wait(100) until needLoad == 0
+    if #NeedToLoad > 0 then sms("Загрузки необходимых файлов завершены. Перезагружаемся...") reloaded = true scr:reload() end
+end
 ------------------------ 
 imgui.OnInitialize(function()
     imgui.GetIO().IniFilename = nil
@@ -133,17 +175,17 @@ imgui.OnInitialize(function()
     if doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then        
         imgui.GetIO().Fonts:Clear()
         imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 15, nil, glyph_ranges)
-    else Logger("Отсутствует файл EagleSans-Regular.ttf") end
+    end
     imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 14, config, iconRanges)
 	-- Img
-	if doesFileExist(dirscr..'AxonLogo.png') then Logo[1] = imgui.CreateTextureFromFile(u8(dirscr..'AxonLogo.png')) else Logger("Отсутствует файл AxonLogo.png. Скрипт выгружен") scr:unload() end
-	if doesFileExist(dirscr..'Camera.png') then Logo[2] = imgui.CreateTextureFromFile(u8(dirscr..'Camera.png')) else Logger("Отсутствует файл Camera.png. Скрипт выгружен") scr:unload() end
-	if doesFileExist(dirscr..'blackdot.png') then BlackDot = imgui.CreateTextureFromFile(u8(dirscr..'blackdot.png')) else Logger("Отсутствует файл blackdot.png. Скрипт выгружен") scr:unload() end
-    if doesFileExist(dirscr..'reddot.png') then RedDot = imgui.CreateTextureFromFile(u8(dirscr..'reddot.png')) else Logger("Отсутствует файл reddot.png. Скрипт выгружен") scr:unload() end
-    if doesFileExist(dirscr..'engine.png') then Engine = imgui.CreateTextureFromFile(u8(dirscr..'engine.png')) else Logger("Отсутствует файл engine.png. Скрипт выгружен") scr:unload() end
-    if doesFileExist(dirscr..'redengine.png') then NotEngine = imgui.CreateTextureFromFile(u8(dirscr..'redengine.png')) else Logger("Отсутствует файл redengine.png. Скрипт выгружен") scr:unload() end
-    if doesFileExist(dirscr..'siren.png') then Siren = imgui.CreateTextureFromFile(u8(dirscr..'siren.png')) else Logger("Отсутствует файл siren.png. Скрипт выгружен") scr:unload() end
-    if doesFileExist(dirscr..'onfoot.png') then Onfoot = imgui.CreateTextureFromFile(u8(dirscr..'onfoot.png')) else Logger("Отсутствует файл onfoot.png. Скрипт выгружен") scr:unload() end
+	if doesFileExist(dirscr..'AxonLogo.png') then Logo[1] = imgui.CreateTextureFromFile(u8(dirscr..'AxonLogo.png')) end
+	if doesFileExist(dirscr..'Camera.png') then Logo[2] = imgui.CreateTextureFromFile(u8(dirscr..'Camera.png')) end
+	if doesFileExist(dirscr..'blackdot.png') then BlackDot = imgui.CreateTextureFromFile(u8(dirscr..'blackdot.png')) end
+    if doesFileExist(dirscr..'reddot.png') then RedDot = imgui.CreateTextureFromFile(u8(dirscr..'reddot.png')) end
+    if doesFileExist(dirscr..'engine.png') then Engine = imgui.CreateTextureFromFile(u8(dirscr..'engine.png')) end
+    if doesFileExist(dirscr..'redengine.png') then NotEngine = imgui.CreateTextureFromFile(u8(dirscr..'redengine.png')) end
+    if doesFileExist(dirscr..'siren.png') then Siren = imgui.CreateTextureFromFile(u8(dirscr..'siren.png')) end
+    if doesFileExist(dirscr..'onfoot.png') then Onfoot = imgui.CreateTextureFromFile(u8(dirscr..'onfoot.png')) end
     MimStyle()
 end)
 ------------------------ MimGUI Frames
@@ -314,13 +356,14 @@ end
 function main()
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned()
-	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN ..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
+    CheckAndDownloadFiles()
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
+    sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)
     WinState[0] = ini.main.enabled
     while true do
-		wait(0)
+        wait(0)
     end  
     wait(-1)
 end
@@ -330,14 +373,8 @@ function hook.onSendSpawn()
 	myNick = sampGetPlayerNickname(myid)
 end
 ------------------------ Another Funcs
-function sms(text)
-    sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
-end
-function Logger(text)
-    print(COLOR_YES..text)
-end
 function PlayAlert()
-    if doesFileExist(dirscr..'alert.mp3') then setAudioStreamState(audio, 1) end
+    if doesFileExist(dirml..'/rmnsptScripts/Alert.mp3') then setAudioStreamState(audio, 1) end
 end
 function rod(m,f)
     return (ini.main.rod == 0 and m or f)

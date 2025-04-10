@@ -19,6 +19,10 @@
 
 ![](/docs/scriptScreens/PhoneNotifier_1.png)
 ![](/docs/scriptScreens/PhoneNotifier_2.png)
+### [PropertyChecker](https://github.com/romanespit/ScriptStorage/tree/main/PropertyChecker)
+Скрипт, позволяющий в игре узнать о домах/бизнесах игрока. Основной код взят [отсюда](https://www.blast.hk/threads/216098/), автор [Read1dno](https://www.blast.hk/members/551599/) переписан на mimgui и доработан мной.
+
+![](/docs/scriptScreens/PropertyChecker.png)
 ### [RouletteOpener](https://github.com/romanespit/ScriptStorage/tree/main/RouletteOpener)
 Скрипт, ускоряющий и автоматизирующий открытие рулеток (бронзовых, серебряных, платиновых)
 

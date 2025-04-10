@@ -59,7 +59,7 @@ function hook.onSendSpawn()
 	myNick = sampGetPlayerNickname(myid)
 end
 function hook.onShowDialog(id, style, title, button1, button2, text)
-    if id == REPORT_DIALOG and ReportProcess and ReportText ~= nil then
+    if id == DIALOG_REPORT and ReportProcess and ReportText ~= nil then
         sampSendDialogResponse(id, 1, 0, ReportText)
         ReportProcess = false
         ReportText = nil
@@ -67,9 +67,6 @@ function hook.onShowDialog(id, style, title, button1, button2, text)
         return false
     end
 end
---[[
-[Подсказка] {FFFFFF}Администратор Joshua_Kanumi принялся за ваш репорт!
-]]
 function hook.onServerMessage(_,text)
 	if  text:find("Если вы хотите отблагодарить администратора, используйте") or
         text:find("Если за вами необходимо срочно проследить, администрация сделает это вне очереди")
@@ -79,7 +76,7 @@ function hook.onServerMessage(_,text)
         sms("Очередь репорта: "..COLOR_YES..queue)
         return false
     end
-    if text:find("Вы отправили жалобу:") then
+    if text:find("Вы отправили жалобу:") and not text:find(".+_.+%[%d+%]") then
         local text = text:match("Вы отправили жалобу: (.+)")
         sms("Репорт: "..COLOR_YES..text)
         return false

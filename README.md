@@ -10,6 +10,10 @@
 Скрипт, автоматически открывающий кейсы в инвентаре. Также ведёт статистику дропа за сессию (без сохранения). Не работает на некоторых ларцах
 
 ![](/docs/scriptScreens/CaseOpener.png)
+### [EmojiHelper](https://github.com/romanespit/ScriptStorage/tree/main/EmojiHelper)
+Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. Работает, как в командах, так и в обычном чате. Используйте конструкцию {e:text}
+
+![](/docs/scriptScreens/EmojiHelper.png)
 ### [FastReport](https://github.com/romanespit/ScriptStorage/tree/main/FastReport)
 Скрипт, позволяющий отправить быстрый репорт по команде /rep text
 

@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Roulette Opener")
-script_version("1.1.0")
+script_version("1.2.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "RouletteOpener"
@@ -126,7 +126,7 @@ local cfg = {
 local ItemPrice = {
     ["Ларец организации"] = "120000",
     ["Подарок"] = "45000",
-    ["Деньги"] = 1
+    ["Деньги"] = "1"
 }
 function SaveCFG()
     local filepath = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."-settings.json"
@@ -321,10 +321,6 @@ function hook.onServerMessage(color,text)
         --print("[DBG] OSM Received")
         AddDrop("Деньги",text:gsub("%p",""):match("(%d+)"))
     end
-    if text:find("%[Подсказка%] {......}Вы получили %d+ подарков, которые можно обменять у Эдварда!") then
-        --print("[DBG] OSM Received")
-        AddDrop("Подарок",text:gsub("%p",""):match("(%d+)"))
-    end
     -- [Подсказка] {FFFFFF}Вы получили 5 подарков, которые можно обменять у Эдварда!
 end
 ------------------------ 
@@ -396,7 +392,7 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end, -- Main F
             if #DropStats > 0 then
                 TotalDropPrice = 0
                 for i,v in ipairs(DropStats) do
-                    imgui.TextColoredRGB(DropStats[i].Name..COLOR_YES.." x"..DropStats[i].Count..(ItemPrice[DropStats[i].Name] ~= 0 and " $"..ItemPrice[DropStats[i].Name] or " Цена неизвестна"))
+                    imgui.TextColoredRGB(DropStats[i].Name.."{FFFF00} x"..DropStats[i].Count..COLOR_YES..(ItemPrice[DropStats[i].Name] ~= "0" and " $"..ItemPrice[DropStats[i].Name] or " Цена неизвестна"))
                     TotalDropPrice = TotalDropPrice+(tonumber(ItemPrice[DropStats[i].Name])*DropStats[i].Count)
                     imgui.SameLine()
                     imgui.Text(faicons.PEN_TO_SQUARE)

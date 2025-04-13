@@ -1,16 +1,9 @@
---[[ Requirements:
-SAMP.lua - https://www.blast.hk/threads/14624/
-fAwesome6.lua - https://www.blast.hk/threads/111224/
-mimgui - https://www.blast.hk/threads/66959/
-]]
------------------------- J-CFG Minified
-local a,b=pcall(require,'json')local c=getWorkingDirectory and getWorkingDirectory()or''local d={encode=encodeJson or(a and b.encode or nil),decode=decodeJson or(a and b.decode or nil)}assert(d.encode and d.decode,'error, cannot use json encode/decode functions. Install JSON cfg: https://github.com/rxi/json.lua')local function e(f)local g=io.open(f,'r')if g~=nil then io.close(g)end;return g~=nil end;function Json(h,i)if not h:find('(.+)%.json$')then h=h..'.json'end;local j,k,l={},false,'UNKNOWN_ERROR'local function m(n,o)local function p(q)local r=type(q)if r~='string'then q=tostring(q)end;local s=q:find('^(%d+)')or q:find('(%p)')or q:find('\\')or q:find('%-')return s==nil and q or('[%s]'):format(r=='string'and"'"..q.."'"or q)end;local t={'{'}local o=o or 0;for q,u in pairs(n)do table.insert(t,('%s%s = %s,'):format(string.rep("    ",o+1),p(q),type(u)=="table"and m(u,o+1)or(type(u)=='string'and"'"..u.."'"or tostring(u))))end;table.insert(t,string.rep('    ',o)..'}')return table.concat(t,'\n')end;local function v(i,w)local x=0;for y,z in pairs(i)do if w[y]==nil then if type(z)=='table'then w[y]={}_,subFilledCount=v(z,w[y])x=x+subFilledCount else w[y]=z;x=x+1 end elseif type(z)=='table'and type(w[y])=='table'then _,subFilledCount=v(z,w[y])x=x+subFilledCount end end;return w,x end;local function A(B)local C=io.open(h,'w')if C then local D,E=pcall(d.encode,B)if D and E then C:write(E)end;C:close()end end;local function F()local C=io.open(h,'r')if C then local G=C:read('*a')C:close()local H,I=pcall(d.decode,G)if H and I then j=I;k=true;local J,x=v(i,j)if x>0 then A(J)return J end;return I else l='JSON_DECODE_FAILED_'..I end else l='JSON_FILE_OPEN_FAILED'end;return{}end;if not e(h)then A(i)end;j=F()return k,setmetatable({},{__call=function(self,K)if type(K)=='table'then j=K;A(j)end end,__index=function(self,y)return y and j[y]or j end,__newindex=function(self,y,L)j[y]=L;A(j)end,__tostring=function(self)return m(j)end,__pairs=function()local y,z=next(j)return function()y,z=next(j,y)return y,z end end,__concat=function()return d.encode(j)end}),k and'ok'or l end
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Roulette Opener")
-script_version("1.0.0")
+script_version("1.1.0")
 local scr = thisScript()
-local SCRIPT_TITLE = scr.name.." © "..table.concat(scr.authors, ", ")
+local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "RouletteOpener"
 MAIN_CMD = "ro"
 COLOR_MAIN = "{A60FAA}"
@@ -55,37 +48,141 @@ ole32.CoInitializeEx(nil, 2 + 4)
 local encoding = require('encoding')
 encoding.default = 'cp1251'
 u8 = encoding.UTF8
+local effil_check, effil = pcall(require, 'effil')
 local faicons = require('fAwesome6')
 local imgui = require 'mimgui'
+local dlstatus = require("moonloader").download_status
+local json = require("cjson")
+local io = require("io")
 local dirml = getWorkingDirectory() -- Директория moonloader
 local dirscr = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/"
 local sx, sy = getScreenResolution() -- Разрешение экрана
 local reloaded = false
 local thread = lua_thread.create(function() return end)
+------------------------ Updates
+local newversion = ""
+local newdate = ""
+local needUpdate = false
+local GitHub = {
+    UpdateFile = "https://github.com/romanespit/ScriptStorage/blob/main/"..SCRIPT_SHORTNAME.."/info.upd?raw=true",
+    ScriptFile = "https://github.com/romanespit/ScriptStorage/blob/main/"..SCRIPT_SHORTNAME.."/"..SCRIPT_SHORTNAME..".lua?raw=true"
+}
+local NeedToLoad = {}
+local needLoad = 0
 ------------------------ Another Variables
 local stage = "notready"
 local started = false
 local OpenCount = 0
 local NeedToOpen = 0
 local DropStats = {}
+local TotalDropPrice = 0
+local PriceSetName = ""
+
+function sms(text)
+    sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
+end
+function Logger(text)
+    print(COLOR_YES..text)
+end
+function CheckAndDownloadFiles()
+    needLoad = 0
+    NeedToLoad = {}
+    if not doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/extraFiles/EagleSans-Regular.ttf?raw=true',dirml..'/rmnsptScripts/EagleSans-Regular.ttf'}) needLoad = needLoad+1 end
+    if needLoad ~= 0 then
+        Logger("Требуется загрузка "..needLoad.." файлов. Начинаю скачивание...")
+        for k,v in ipairs(NeedToLoad) do
+            downloadUrlToFile(v[1], v[2], function(id, status, p1, p2)
+                if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+                    lua_thread.create(function()
+                        wait(1000)
+                        if doesFileExist(v[2]) then
+                            Logger("Успешная загрузка файла "..v[2]:match(".+(rmnsptScripts/.+)"))
+                            needLoad = needLoad-1
+                        end
+                    end)
+                end
+            end)
+        end
+    end
+    repeat wait(100) until needLoad == 0
+    if #NeedToLoad > 0 then sms("Загрузки необходимых файлов завершены. Перезагружаемся...") reloaded = true scr:reload() end
+end
 ------------------------ Script Directories
 if not doesDirectoryExist(dirml.."/rmnsptScripts/") then
     createDirectory(dirml.."/rmnsptScripts/")
-    Logger("Директория rmnsptScripts не была найдена. Успешное создание")
+    Logger("Директория rmnsptScripts не была найдена. Создаём...")
+end
+if not doesDirectoryExist(dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/") then
+    createDirectory(dirscr)
+    Logger("Директория rmnsptScripts/"..SCRIPT_SHORTNAME.." не была найдена. Создаём...")
 end
 ------------------------ Default Config
-local cfgstatus, cfg = Json(dirml..'\\rmnsptScripts\\'..SCRIPT_SHORTNAME..'-settings.json', { 
+
+local cfg = {
     Turned = true,
     HasCompass = false,
     Timer = 15
-});
+}
+local ItemPrice = {
+    ["Ларец организации"] = "120000",
+    ["Подарок"] = "45000",
+    ["Деньги"] = 1
+}
+function SaveCFG()
+    local filepath = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."-settings.json"
+    local file = io.open(filepath, "w")
+    if file then
+        file:write(json.encode(cfg))
+        file:close()
+    else
+        Logger("Ошибка сохранения файла настроек")
+    end
+end
+function LoadCFG()
+    local filepath = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."-settings.json"
+    local file = io.open(filepath, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+        cfg = json.decode(content)
+    else
+        Logger("Ошибка чтения файла настроек! Создаём...")
+        SaveCFG()
+    end
+end
+LoadCFG() -- Загрузка настроек
+function LoadItemPrices()
+    local filepath = dirml.."/rmnsptScripts/ItemPrices.json"
+    local file = io.open(filepath, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+        ItemPrice = json.decode(content)
+    else
+        Logger("Ошибка чтения файла с ценами! Создаём...")
+        SaveItemPrices()
+    end
+end
+function SaveItemPrices()
+    local filepath = dirml.."/rmnsptScripts/ItemPrices.json"
+    local file = io.open(filepath, "w")
+    if file then
+        file:write(json.encode(ItemPrice))
+        file:close()
+    else
+        Logger("Ошибка сохранения файла с ценами")
+    end
+end
+
 ------------------------ MimGUI Variables
 local new, str = imgui.new, ffi.string
-local WinState = new.bool() 
+local WinState = new.bool()
+local PriceState = new.bool()
 local Turned = new.bool(cfg.Turned)
 local HasCompass = new.bool(cfg.HasCompass)
 local Timer = new.int(cfg.Timer)
 local imNeedToOpen = new.char[256](u8(tostring(NeedToOpen)))
+local imPrice = new.char[10]()
 ------------------------ 
 function onScriptTerminate(scr, is_quit)
 	if scr == thisScript() and not is_quit and not reloaded then
@@ -114,24 +211,6 @@ function onSendPacket(id, bs)
         end
     end
 end
---[[addEventHandler('onReceivePacket', function (id, bs)
-  if id == 220 then
-    raknetBitStreamIgnoreBits(bs, 8)
-    if (raknetBitStreamReadInt8(bs) == 17) then
-      raknetBitStreamIgnoreBits(bs, 32)
-      local length = raknetBitStreamReadInt16(bs)
-      local encoded = raknetBitStreamReadInt8(bs)
-      local str = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
-      --print(str) -- строка из пакета
-    end
-  end
-end)]]
---[[
-window.executeEvent('event.call.InitializeCaller', `["Fidelio_Paradoxical"]`);
-window.executeEvent('event.call.InitializeNumber', `["5999655"]`);
-window.executeEvent('event.messenger.notification.update', `[{"title":"xkty","contactName":"Fidelio_Paradoxical (454)","user_id":702774,"message_id":54106,"timeoutMs":6500,"image":"https://pc-cdn-az-ins.dev.arizona.games/resource/frontend/inventory/skins/256/708.png"}]`);
-
-]]
 function onReceivePacket(id, bs)
 	if id == 220 then
 		raknetBitStreamIgnoreBits(bs, 8)
@@ -172,13 +251,8 @@ function onReceivePacket(id, bs)
     end
 end
 ------------------------ Another Funcs
-function sms(text)
-    sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
-end
-function Logger(text)
-    print(COLOR_YES..text)
-end
 function AddDrop(name,count)
+    if ItemPrice[name] == nil then ItemPrice[name] = "0" SaveItemPrices() end
     
     --print("[DBG] AddDrop|"..name.."|"..count)
     local found = false
@@ -210,14 +284,22 @@ end
 function RegisterScriptCommands()
     sampRegisterChatCommand(MAIN_CMD, function() WinState[0] = not WinState[0] end) -- Главное окно скрипта
     sampRegisterChatCommand(MAIN_CMD.."rl", function() sms("Перезагружаемся...") reloaded = true scr:reload() end) -- Перезагрузка скрипта
+    sampRegisterChatCommand(MAIN_CMD.."upd", function() -- Обновление скрипта
+        if needUpdate then
+            updateScript()
+        else sms("Вы используете актуальную версию") end
+    end)
     Logger("Успешная регистрация команд скрипта")
 end
 ------------------------ Main Function
 function main()
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned() 
-	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
+    CheckAndDownloadFiles()
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
+    LoadItemPrices()
+	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
+    updateCheck() -- Проверка обновлений
     while true do
 		wait(0)
     end  
@@ -225,7 +307,7 @@ function main()
 end
 ------------------------ Samp Events Hook funcs
 function hook.onShowDialog(id, style, title, button1, button2, text)
-    if id == 0 and text:find("Поздравляем с получением") and started then 
+    if id == 0 and text:find("Поздравляем с получением") then 
         --print("[DBG] OSD Received")
         local prize,count = text:match("Поздравляем с получением: {......}(.+) %((%d+) шт%){......}")
         AddDrop(prize,count)
@@ -235,29 +317,40 @@ function hook.onShowDialog(id, style, title, button1, button2, text)
     end
 end
 function hook.onServerMessage(color,text)
-    if text:find("%[Подсказка%] {......}Вы получили %+%$.+%!") and started then
+    if text:find("%[Подсказка%] {......}Вы получили %+%$.+%!") then
         --print("[DBG] OSM Received")
         AddDrop("Деньги",text:gsub("%p",""):match("(%d+)"))
     end
+    if text:find("%[Подсказка%] {......}Вы получили %d+ подарков, которые можно обменять у Эдварда!") then
+        --print("[DBG] OSM Received")
+        AddDrop("Подарок",text:gsub("%p",""):match("(%d+)"))
+    end
+    -- [Подсказка] {FFFFFF}Вы получили 5 подарков, которые можно обменять у Эдварда!
 end
 ------------------------ 
 imgui.OnInitialize(function()
     imgui.GetIO().IniFilename = nil
     local config = imgui.ImFontConfig()
+    local glyph_ranges = imgui.GetIO().Fonts:GetGlyphRangesCyrillic()
     config.MergeMode = true
     config.PixelSnapH = true
     iconRanges = imgui.new.ImWchar[3](faicons.min_range, faicons.max_range, 0)
-    imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 14, config, iconRanges)
+    --Font
+    if doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then        
+        imgui.GetIO().Fonts:Clear()
+        imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 15, nil, glyph_ranges)
+    else Logger("Отсутствует файл EagleSans-Regular.ttf.") end
+    imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 10, config, iconRanges)
     MimStyle()
 end)
 ------------------------ MimGUI Frames
-imgui.OnFrame(function() return WinState[0] end, -- Main Frame
+imgui.OnFrame(function() return WinState[0] and not PriceState[0] end, -- Main Frame
     function(player)
         imgui.SetNextWindowPos(imgui.ImVec2(sx/3, 500), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.Begin(faicons('gem').." "..u8(SCRIPT_TITLE), WinState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse)
         if imgui.Checkbox(u8'Включить / Выключить скрипт', Turned) then
             cfg.Turned = Turned[0]
-            cfg()
+            SaveCFG()
         end
         if Turned[0] and not started and stage == "readytoopen" then
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
@@ -280,13 +373,13 @@ imgui.OnFrame(function() return WinState[0] end, -- Main Frame
             imgui.TextColoredRGB('Осталось открыть: '..COLOR_YES..(NeedToOpen ~= 0 and NeedToOpen or 'Пока не кончатся/остановится'))
             if imgui.Checkbox(u8'У меня есть рулеточный компас', HasCompass) then
                 cfg.HasCompass = HasCompass[0]
-                cfg()
+                SaveCFG()
             end
         end
         if not HasCompass[0] then
             if imgui.SliderInt(u8'Таймер открытия (сек)', Timer, 1, 15) then				
                 cfg.Timer = Timer[0]
-                cfg()
+                SaveCFG()
             end
             if Timer[0] < 15 then
                 imgui.TextColoredRGB("{FF0000}ВНИМАНИЕ! Стандартное время открытия - 15 секунд")
@@ -297,20 +390,57 @@ imgui.OnFrame(function() return WinState[0] end, -- Main Frame
         end
         if imgui.CollapsingHeader(u8"Статистика") then
             imgui.Text(u8"Статистика открытий:")
-            imgui.Text(u8"Открыто рулеток: "..OpenCount)
+            imgui.TextColoredRGB("Открыто рулеток: "..COLOR_YES..OpenCount)            
+            imgui.TextColoredRGB("Цена всего дропа: "..COLOR_YES.."$"..TotalDropPrice)
+            imgui.Separator()
             if #DropStats > 0 then
+                TotalDropPrice = 0
                 for i,v in ipairs(DropStats) do
-                    imgui.TextColoredRGB(DropStats[i].Name..COLOR_YES.." x"..DropStats[i].Count)
+                    imgui.TextColoredRGB(DropStats[i].Name..COLOR_YES.." x"..DropStats[i].Count..(ItemPrice[DropStats[i].Name] ~= 0 and " $"..ItemPrice[DropStats[i].Name] or " Цена неизвестна"))
+                    TotalDropPrice = TotalDropPrice+(tonumber(ItemPrice[DropStats[i].Name])*DropStats[i].Count)
+                    imgui.SameLine()
+                    imgui.Text(faicons.PEN_TO_SQUARE)
+                    if imgui.IsItemHovered() then
+                        imgui.BeginTooltip()
+                        imgui.Text(u8'Нажмите, чтобы изменить цену')
+                        imgui.EndTooltip()
+                    end        
+                    if imgui.IsItemClicked() then 
+                        PriceState[0] = not PriceState[0]
+                        PriceSetName = DropStats[i].Name
+                        imgui.StrCopy(imPrice, u8(ItemPrice[DropStats[i].Name]))
+                    end
                 end
-            end 
+            end
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
-            if imgui.Button(u8'Обнулить статистику', imgui.ImVec2(200, 20)) then
+            if imgui.Button(u8'Обнулить статистику', imgui.ImVec2(200, 30)) then
                 OpenCount = 0
                 DropStats = {}
+                TotalDropPrice = 0
                 sms("Статистика сброшена")
-            end
-        end
+            end 
+            
+        end   
         imgui.Link("https://romanespit.ru/",u8"© "..table.concat(scr.authors, ", "))
+        imgui.End()
+    end
+)
+
+imgui.OnFrame(function() return PriceState[0] end, -- Main Frame
+    function(player)
+        imgui.SetNextWindowPos(imgui.ImVec2(sx/3, 500), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8("Настройки цен дропа"), PriceState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse)
+        imgui.TextColoredRGB("Введите цену для "..COLOR_YES..PriceSetName..COLOR_WHITE..":")
+        imgui.SameLine()
+        imgui.PushItemWidth(100)
+        imgui.InputText("", imPrice, 10)
+        imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100) 
+        if imgui.Button(u8'Сохранить', imgui.ImVec2(200, 30)) then
+            ItemPrice[PriceSetName] = u8:decode(ffi.string(imPrice))
+            SaveItemPrices()
+            PriceSetName = ""
+            PriceState[0] = false
+        end        
         imgui.End()
     end
 )
@@ -405,7 +535,7 @@ function imgui.Link(link, text)
     DL:AddLine(imgui.ImVec2(p.x, p.y + tSize.y), imgui.ImVec2(p.x + tSize.x, p.y + tSize.y), color)
 end
 ------------------------ MimGUI Style
-function MimStyle() 
+function MimStyle()
     local style = imgui.GetStyle();
     local colors = style.Colors;
     style.Alpha = 1;
@@ -480,6 +610,55 @@ function MimStyle()
     colors[imgui.Col.NavWindowingDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.20);
     colors[imgui.Col.ModalWindowDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.35);
     Logger("Стили mimgui успешно применены")
+end
+function updateScript()
+	sms("Производится скачивание новой версии скрипта...")
+	local dir = dirml.."/"..SCRIPT_SHORTNAME..".lua"
+	local updates = nil
+	downloadUrlToFile(GitHub.ScriptFile, dir, function(id, status, p1, p2)
+		if status == dlstatus.STATUSEX_ENDDOWNLOAD then
+			if updates == nil then 
+				Logger("Ошибка при попытке обновиться.") 
+				addOneOffSound(0, 0, 0, 31202)
+				sms("Произошла ошибка при скачивании обновления. Попробуйте позднее...")
+			end
+		end
+		if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+			updates = true
+			Logger("Загрузка закончена")
+			sms("Скачивание обновления завершено, перезагрузка скрипта...")
+            addOneOffSound(0, 0, 0, 31205)
+			showCursor(false)
+            reloaded = true
+			scr:reload()
+		end
+	end)
+end
+function updateCheck()
+	sms("Проверяем наличие обновлений...")
+		local dir = dirscr.."info.upd"
+		downloadUrlToFile(GitHub.UpdateFile, dir, function(id, status, p1, p2)
+			if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+				lua_thread.create(function()
+					wait(1000)
+					if doesFileExist(dirscr.."info.upd") then
+						local f = io.open(dirscr.."info.upd", "r")
+						local upd = decodeJson(f:read("*a"))
+						f:close()
+						if type(upd) == "table" then
+							newversion = upd.version
+							newdate = upd.release_date
+							if upd.version == scr.version then
+								sms("Вы используете актуальную версию скрипта - v"..scr.version.." от "..newdate)
+							else
+								sms("Имеется обновление до версии v"..newversion.." от "..newdate.."! "..COLOR_YES.."/"..MAIN_CMD.."upd")
+                                needUpdate = true
+							end
+						end
+					end
+				end)
+			end
+		end)
 end
 addEventHandler('onWindowMessage', function(msg, wparam, lparam)
 	if wparam == 27 then

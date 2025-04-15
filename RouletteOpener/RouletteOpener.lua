@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Roulette Opener")
-script_version("1.2.0")
+script_version("1.3.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "RouletteOpener"
@@ -158,6 +158,9 @@ function LoadItemPrices()
         local content = file:read("*a")
         file:close()
         ItemPrice = json.decode(content)
+        for k,v in pairs(ItemPrice) do
+            if ItemPrice[k] == 0 or tonumber(ItemPrice[k]) < 0 or tonumber(ItemPrice[k]) == nil then ItemPrice[k] = "0" end
+        end
     else
         Logger("Ошибка чтения файла с ценами! Создаём...")
         SaveItemPrices()
@@ -432,6 +435,10 @@ imgui.OnFrame(function() return PriceState[0] end, -- Main Frame
         imgui.InputText("", imPrice, 10)
         imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100) 
         if imgui.Button(u8'Сохранить', imgui.ImVec2(200, 30)) then
+            if u8:decode(ffi.string(imPrice)) == nil or
+            u8:decode(ffi.string(imPrice)) == "" or
+            tonumber(u8:decode(ffi.string(imPrice))) == nil or
+            tonumber(u8:decode(ffi.string(imPrice))) < 0 then imgui.StrCopy(imPrice, u8("0")) end
             ItemPrice[PriceSetName] = u8:decode(ffi.string(imPrice))
             SaveItemPrices()
             PriceSetName = ""

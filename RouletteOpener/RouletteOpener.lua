@@ -420,7 +420,7 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end, -- Main F
             end 
             
         end   
-        imgui.Link("https://romanespit.ru/",u8"© "..table.concat(scr.authors, ", "))
+        imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))
         imgui.End()
     end
 )

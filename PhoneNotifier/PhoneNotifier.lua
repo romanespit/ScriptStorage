@@ -135,7 +135,7 @@ imgui.OnFrame(function() return WinState[0] end, -- Main Frame
         end
         imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
         if imgui.Button(u8'Тестовое сообщение', imgui.ImVec2(200, 30)) then
-            sendTelegram(true,"Это тестовое сообщение от скрипта `"..SCRIPT_SHORTNAME.."`, отправленное для проверки корректности введенных данных\\n\\n%C2%A9 https://romanespit.ru")
+            sendTelegram(true,"Это тестовое сообщение от скрипта `"..SCRIPT_SHORTNAME.."`, отправленное для проверки корректности введенных данных\\n\\n%C2%A9 https://romanespit.ru/lua")
             sms("Тестовое сообщение в Telegram было отправлено!")
         end
         imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))

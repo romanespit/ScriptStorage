@@ -1,6 +1,6 @@
 script_author("romanespit")
 script_name("Case Opener")
-script_version("1.1.2")
+script_version("1.2.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 ------------------------
@@ -9,21 +9,75 @@ local wm = require 'lib.windows.message'
 local encoding = require('encoding')
 local faicons = require('fAwesome6')
 local imgui = require 'mimgui'
-local inicfg = require 'inicfg'
+--local inicfg = require 'inicfg'
 local effil_check, effil = pcall(require, 'effil')
 local memory = require "memory"
 local ffi = require 'ffi'
+local dlstatus = require("moonloader").download_status
+local json = require("cjson")
+local io = require("io")
 encoding.default = 'cp1251'
+ffi.cdef [[
+		typedef int BOOL;
+		typedef unsigned long HANDLE;
+		typedef HANDLE HWND;
+		typedef const char* LPCSTR;
+		typedef unsigned UINT;
+		
+        void* __stdcall ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show_cmd);
+        uint32_t __stdcall CoInitializeEx(void*, uint32_t);
+		
+		BOOL ShowWindow(HWND hWnd, int  nCmdShow);
+		HWND GetActiveWindow();
+		
+		
+		int MessageBoxA(
+		  HWND   hWnd,
+		  LPCSTR lpText,
+		  LPCSTR lpCaption,
+		  UINT   uType
+		);
+		
+		short GetKeyState(int nVirtKey);
+		bool GetKeyboardLayoutNameA(char* pwszKLID);
+		int GetLocaleInfoA(int Locale, int LCType, char* lpLCData, int cchData);
+  ]]
+
+local shell32 = ffi.load 'Shell32'
+local ole32 = ffi.load 'Ole32'
+ole32.CoInitializeEx(nil, 2 + 4)
 u8 = encoding.UTF8
+SCRIPT_SHORTNAME = "CaseOpener"
+MAIN_CMD = "co"
 COLOR_MAIN = '{d8572a}'
 SCRIPT_COLOR = 0xFFD8572A
 COLOR_YES = '{36c500}'
 COLOR_NO = '{FF6A57}'
 COLOR_WHITE = '{ffffff}'
-SCRIPT_PREFIX = '[ CASE OPENER ]{FFFFFF}: '
+SCRIPT_PREFIX = COLOR_MAIN.."[ "..SCRIPT_SHORTNAME.." ]{FFFFFF}: "
+local reloaded = false
 local myNick = ""
 local sx, sy = getScreenResolution()
-local settings = inicfg.load({
+
+local dirml = getWorkingDirectory() -- Директория moonloader
+local dirscr = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/"
+function sms(text)
+    sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
+end
+function Logger(text)
+    print(COLOR_YES..text)
+end
+------------------------ Script Directories
+if not doesDirectoryExist(dirml.."/rmnsptScripts/") then
+    createDirectory(dirml.."/rmnsptScripts/")
+    Logger("Директория rmnsptScripts не была найдена. Создаём...")
+end
+if not doesDirectoryExist(dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/") then
+    createDirectory(dirscr)
+    Logger("Директория rmnsptScripts/"..SCRIPT_SHORTNAME.." не была найдена. Создаём...")
+end
+------------------------ Default Config
+local settings = { 
     main={
 		DebugMode = true,
         KostStop = true,
@@ -34,7 +88,93 @@ local settings = inicfg.load({
         x = 220,
         y = 570
     }
-},'CaseOpener')
+}
+local ItemPrice = {
+    ["Ларец организации"] = "120000",
+    ["Подарок"] = "45000",
+    ["Деньги"] = "1"
+}
+function SaveCFG()
+    local filepath = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."-settings.json"
+    local file = io.open(filepath, "w")
+    if file then
+        file:write(json.encode(settings))
+        file:close()
+    else
+        Logger("Ошибка сохранения файла настроек")
+    end
+end
+function LoadCFG()
+    local filepath = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."-settings.json"
+    local file = io.open(filepath, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+        settings = json.decode(content)
+    else
+        Logger("Ошибка чтения файла настроек! Создаём...")
+        SaveCFG()
+    end
+end
+LoadCFG() -- Загрузка настроек
+function LoadItemPrices()
+    local filepath = dirml.."/rmnsptScripts/ItemPrices.json"
+    local file = io.open(filepath, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+        ItemPrice = json.decode(content)
+        for k,v in pairs(ItemPrice) do
+            if ItemPrice[k] == 0 or tonumber(ItemPrice[k]) < 0 or tonumber(ItemPrice[k]) == nil then ItemPrice[k] = "0" end
+        end
+    else
+        Logger("Ошибка чтения файла с ценами! Создаём...")
+        SaveItemPrices()
+    end
+end
+function SaveItemPrices()
+    local filepath = dirml.."/rmnsptScripts/ItemPrices.json"
+    local file = io.open(filepath, "w")
+    if file then
+        file:write(json.encode(ItemPrice))
+        file:close()
+    else
+        Logger("Ошибка сохранения файла с ценами")
+    end
+end
+function CheckAndDownloadFiles()
+    needLoad = 0
+    NeedToLoad = {}
+    if not doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/extraFiles/EagleSans-Regular.ttf?raw=true',dirml..'/rmnsptScripts/EagleSans-Regular.ttf'}) needLoad = needLoad+1 end
+    if needLoad ~= 0 then
+        Logger("Требуется загрузка "..needLoad.." файлов. Начинаю скачивание...")
+        for k,v in ipairs(NeedToLoad) do
+            downloadUrlToFile(v[1], v[2], function(id, status, p1, p2)
+                if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+                    lua_thread.create(function()
+                        wait(1000)
+                        if doesFileExist(v[2]) then
+                            Logger("Успешная загрузка файла "..v[2]:match(".+(rmnsptScripts/.+)"))
+                            needLoad = needLoad-1
+                        end
+                    end)
+                end
+            end)
+        end
+    end
+    repeat wait(100) until needLoad == 0
+    if #NeedToLoad > 0 then sms("Загрузки необходимых файлов завершены. Перезагружаемся...") reloaded = true scr:reload() end
+end
+------------------------ Updates
+local newversion = ""
+local newdate = ""
+local needUpdate = false
+local GitHub = {
+    UpdateFile = "https://github.com/romanespit/ScriptStorage/blob/main/"..SCRIPT_SHORTNAME.."/info.upd?raw=true",
+    ScriptFile = "https://github.com/romanespit/ScriptStorage/blob/main/"..SCRIPT_SHORTNAME.."/"..SCRIPT_SHORTNAME..".lua?raw=true"
+}
+local NeedToLoad = {}
+local needLoad = 0
 -- MimGUI
 local new, str = imgui.new, ffi.string
 local WinState = new.bool()
@@ -42,6 +182,8 @@ local WinProcess = new.bool(settings.main.DebugMode)
 local KostStop = new.bool(settings.main.KostStop)
 local BlueprintNotifications = new.bool(settings.main.BlueprintNotifications)
 local BlueprintStop = new.bool(settings.main.BlueprintStop)
+local PriceState = new.bool()
+local imPrice = new.char[10]()
 local instructions = [[
 Для начала работы вам нужно открыть ваш инвентарь (клавиша I или Y)
 Затем нажмите кнопку Выбрать ячейку.
@@ -69,6 +211,8 @@ local button = { -- константы кнопок инвентаря
 local changepos = false
 local OpenCount = 0
 local DropStats = {}
+local TotalDropPrice = 0
+local PriceSetName = ""
 local actualPage = 1
 local LastClickedTD = 0
 local selectedItem = 0
@@ -135,13 +279,19 @@ end
 imgui.OnInitialize(function()
     imgui.GetIO().IniFilename = nil
     local config = imgui.ImFontConfig()
+    local glyph_ranges = imgui.GetIO().Fonts:GetGlyphRangesCyrillic()
     config.MergeMode = true
     config.PixelSnapH = true
     iconRanges = imgui.new.ImWchar[3](faicons.min_range, faicons.max_range, 0)
-    imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 14, config, iconRanges)
+    --Font
+    if doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then        
+        imgui.GetIO().Fonts:Clear()
+        imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 15, nil, glyph_ranges)
+    else Logger("Отсутствует файл EagleSans-Regular.ttf.") end
+    imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 10, config, iconRanges)
     MimStyle()
 end)
-imgui.OnFrame(function() return WinState[0] end,
+imgui.OnFrame(function() return WinState[0] and not PriceState[0] end,
     function(player)
         imgui.SetNextWindowPos(imgui.ImVec2(sx/3, 500), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.Begin(faicons('gem')..u8(" "..SCRIPT_TITLE), WinState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse)
@@ -184,47 +334,64 @@ imgui.OnFrame(function() return WinState[0] end,
         if imgui.CollapsingHeader(u8"Настройки") then      
             if imgui.Checkbox(u8'Останавливать при дропе косточек ', KostStop) then
                 settings.main.KostStop = not settings.main.KostStop
-                inicfg.save(settings, 'CaseOpener')
+                SaveCFG()
                 sms("При получении косточки открытия "..(settings.main.KostStop and COLOR_NO.."прекратятся" or COLOR_YES.."продолжатся"))
             end
             if imgui.Checkbox(u8'Звуковые уведомления о дропе чертежа ', BlueprintNotifications) then
                 settings.main.BlueprintNotifications = not settings.main.BlueprintNotifications
-                inicfg.save(settings, 'CaseOpener')
+                SaveCFG()
                 sms("Звуковые уведомления о дропе чертежа "..(settings.main.BlueprintNotifications and COLOR_YES.."включены" or COLOR_NO.."выключены"))
             end
             if imgui.Checkbox(u8'Останавливать открытие, если выбит чертёж ', BlueprintStop) then
                 settings.main.BlueprintStop = not settings.main.BlueprintStop
-                inicfg.save(settings, 'CaseOpener')
+                SaveCFG()
                 sms("При дропе чертежа открытия "..(settings.main.BlueprintStop and COLOR_NO.."остановятся" or COLOR_YES.."продолжатся"))
+            end            
+            imgui.Separator()        
+            imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
+            if imgui.Button(u8'Debug', imgui.ImVec2(200, 30)) then
+                settings.main.DebugMode = not settings.main.DebugMode
+                SaveCFG()
+                sms("Режим отладки "..(settings.main.DebugMode and COLOR_YES.."включен" or COLOR_NO.."выключен"))
+            end
+            if settings.main.DebugMode then
+                imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
+                if imgui.Button(u8'Изменить позицию окна', imgui.ImVec2(200, 30)) then
+                    changepos = true
+                    sms("Выберите позицию окна и нажмите ЛКМ")
+                end
             end
         end
         if imgui.CollapsingHeader(u8"Статистика") then
             imgui.Text(u8"Статистика открытий:")
-            imgui.Text(u8"Открыто ларцов: "..OpenCount)
+            imgui.TextColoredRGB("Открыто ларцов: "..COLOR_YES..OpenCount) 
+            imgui.TextColoredRGB("Цена всего дропа: "..COLOR_YES.."$"..TotalDropPrice)
+            imgui.Separator()
             if #DropStats > 0 then
+                TotalDropPrice = 0
                 for i,v in ipairs(DropStats) do
-                    imgui.TextColoredRGB(DropStats[i].Name..COLOR_YES.." x"..DropStats[i].Count)
+                    imgui.TextColoredRGB(DropStats[i].Name.."{FFFF00} x"..DropStats[i].Count..COLOR_YES..(ItemPrice[DropStats[i].Name] ~= "0" and " $"..ItemPrice[DropStats[i].Name] or " Цена неизвестна"))
+                    TotalDropPrice = TotalDropPrice+(tonumber(ItemPrice[DropStats[i].Name])*DropStats[i].Count)
+                    imgui.SameLine()
+                    imgui.Text(faicons.PEN_TO_SQUARE)
+                    if imgui.IsItemHovered() then
+                        imgui.BeginTooltip()
+                        imgui.Text(u8'Нажмите, чтобы изменить цену')
+                        imgui.EndTooltip()
+                    end        
+                    if imgui.IsItemClicked() then 
+                        PriceState[0] = not PriceState[0]
+                        PriceSetName = DropStats[i].Name
+                        imgui.StrCopy(imPrice, u8(ItemPrice[DropStats[i].Name]))
+                    end
                 end
-            end 
+            end
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
-            if imgui.Button(u8'Обнулить статистику', imgui.ImVec2(200, 20)) then
+            if imgui.Button(u8'Обнулить статистику', imgui.ImVec2(200, 30)) then
                 OpenCount = 0
                 DropStats = {}
+                TotalDropPrice = 0
                 sms("Статистика сброшена")
-            end
-        end
-        imgui.Separator()        
-        imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
-		if imgui.Button(u8'Debug', imgui.ImVec2(200, 20)) then
-			settings.main.DebugMode = not settings.main.DebugMode
-            inicfg.save(settings, 'CaseOpener')
-            sms("Режим отладки "..(settings.main.DebugMode and COLOR_YES.."включен" or COLOR_NO.."выключен"))
-		end
-        if settings.main.DebugMode then
-            imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
-            if imgui.Button(u8'Изменить позицию окна', imgui.ImVec2(200, 20)) then
-                changepos = true
-                sms("Выберите позицию окна и нажмите ЛКМ")
             end
         end
         imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))
@@ -244,18 +411,43 @@ imgui.OnFrame(function() return WinState[0] and settings.main.DebugMode end, fun
     
     imgui.End()
 end).HideCursor = true
-
+imgui.OnFrame(function() return PriceState[0] end, -- Main Frame
+    function(player)
+        imgui.SetNextWindowPos(imgui.ImVec2(sx/3, 500), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8("Настройки цен дропа"), PriceState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse)
+        imgui.TextColoredRGB("Введите цену для "..COLOR_YES..PriceSetName..COLOR_WHITE..":")
+        imgui.SameLine()
+        imgui.PushItemWidth(100)
+        imgui.InputText("", imPrice, 10)
+        imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100) 
+        if imgui.Button(u8'Сохранить', imgui.ImVec2(200, 30)) then
+            if u8:decode(ffi.string(imPrice)) == nil or
+            u8:decode(ffi.string(imPrice)) == "" or
+            tonumber(u8:decode(ffi.string(imPrice))) == nil or
+            tonumber(u8:decode(ffi.string(imPrice))) < 0 then imgui.StrCopy(imPrice, u8("0")) end
+            ItemPrice[PriceSetName] = u8:decode(ffi.string(imPrice))
+            SaveItemPrices()
+            PriceSetName = ""
+            PriceState[0] = false
+        end        
+        imgui.End()
+    end
+)
 function onScriptTerminate(scr, is_quit)
-	if scr == thisScript() then
+	if scr == thisScript() and not is_quit and not reloaded then
+        sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
 	end
 end
 function main()
 	while not isSampAvailable() do wait(0) end
 	thread = lua_thread.create(function() return end)
 	repeat wait(100) until sampIsLocalPlayerSpawned()
-	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/co{FFFFFF}. Автор: "..COLOR_MAIN.."romanespit")
-	sampRegisterChatCommand('co', function() WinState[0] = not WinState[0] end)
-    if not doesFileExist('moonloader/config/CaseOpener.ini') then inicfg.save(settings, 'CaseOpener') end
+    CheckAndDownloadFiles()
+	RegisterScriptCommands() -- Регистрация объявленных команд скрипта
+    LoadItemPrices()
+	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
+    updateCheck() -- Проверка обновлений
+    
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)
     stopOpening()
@@ -265,7 +457,7 @@ function main()
             settings.DebugPos.x, settings.DebugPos.y = getCursorPos() 
             if isKeyJustPressed(1) then
                 changepos = false
-                inicfg.save(settings, 'CaseOpener')
+                SaveCFG()
                 sms("Позиция сохранена")
             end
         end
@@ -286,8 +478,18 @@ function main()
     end  
     wait(-1)
 end
-
+function RegisterScriptCommands()
+    sampRegisterChatCommand(MAIN_CMD, function() WinState[0] = not WinState[0] end) -- Главное окно скрипта
+    sampRegisterChatCommand(MAIN_CMD.."rl", function() sms("Перезагружаемся...") reloaded = true scr:reload() end) -- Перезагрузка скрипта
+    sampRegisterChatCommand(MAIN_CMD.."upd", function() -- Обновление скрипта
+        if needUpdate then
+            updateScript()
+        else sms("Вы используете актуальную версию") end
+    end)
+    Logger("Успешная регистрация команд скрипта")
+end
 function AddDrop(name,count)
+    if ItemPrice[name] == nil then ItemPrice[name] = "0" SaveItemPrices() end
     local found = false
     OpenCount = OpenCount + 1
     if #DropStats > 0 then
@@ -340,7 +542,7 @@ function hook.onServerMessage(color,text)
         if text:find("очков опыта") then AddDrop("Опыт",text:match("(%d+)")) end
         if text:find("%$") then AddDrop("Деньги",text:gsub("%p",""):match("(%d+)")) end
     end
-    if text:find("Вам был добавлен предмет 'Талон: %+1 EXP %(Передаваемые%)'") then AddDrop("Талон: +1 EXP",1) OpenCount = OpenCount - 1 end
+    if text:find("Вам был добавлен предмет 'Талон: %+1 EXP %(Передаваемые%)'") then AddDrop("Талон: +1 EXP (Передаваемые)",1) OpenCount = OpenCount - 1 end
     if text:find("Вам был добавлен предмет 'Талон для охранника: %+1 EXP'") then AddDrop("Талон для охранника: +1 EXP",1) OpenCount = OpenCount - 1 end
     if text:find("Удача улыбнулась игроку ([A-Za-z0-9%a]+_[A-Za-z0-9%a]+) при открытии '([^']*)' и он выиграл предмет: (.+)") and not text:find(myNick) and settings.main.BlueprintNotifications then
         sms("Кто-то выбил чертёж, можно доесть :yum:")
@@ -355,9 +557,7 @@ function hook.onServerMessage(color,text)
 end
 -- 
 -- 
-function sms(text)
-    sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
-end
+
 function hook.onSendClickTextDraw(id)
     LastClickedTD = id
     if id == 2112 or id == button.Close then
@@ -392,9 +592,9 @@ function hook.onTextDrawSetString(id,text)
     if stage == "opening" and id ~= button.Use and id ~= selectedItem and sampTextdrawGetModelRotationZoomVehColor(id) ~= selectedModel then return false end
 end
 function hook.onTextDrawHide(id)
-    if stage == "opening" and id ~= button.Use and id ~= selectedItem then return false end
+    if stage == "opening" and id ~= button.Use and id ~= selectedItem and sampTextdrawGetModelRotationZoomVehColor(id) ~= selectedModel then return false end -- посл условие для теста, мб убрать
 end
-function hook.onShowTextDraw(id,data)    
+function hook.onShowTextDraw(id,data)     
     if stage == "opening" and id ~= button.Use and id ~= selectedItem and sampTextdrawGetModelRotationZoomVehColor(id) ~= selectedModel then return false end
     if openStage == "pushUse" and id == button.Use then
         openStage = "useButtonReceived"
@@ -422,6 +622,7 @@ function imgui.Link(link, text)
     DL:AddText(p, color, text)
     DL:AddLine(imgui.ImVec2(p.x, p.y + tSize.y), imgui.ImVec2(p.x + tSize.x, p.y + tSize.y), color)
 end
+------------------------ MimGUI Style
 function MimStyle()
     local style = imgui.GetStyle();
     local colors = style.Colors;
@@ -496,8 +697,57 @@ function MimStyle()
     colors[imgui.Col.NavWindowingHighlight] = imgui.ImVec4(1.00, 1.00, 1.00, 0.70);
     colors[imgui.Col.NavWindowingDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.20);
     colors[imgui.Col.ModalWindowDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.35);
+    Logger("Стили mimgui успешно применены")
 end
-
+function updateScript()
+	sms("Производится скачивание новой версии скрипта...")
+	local dir = dirml.."/"..SCRIPT_SHORTNAME..".lua"
+	local updates = nil
+	downloadUrlToFile(GitHub.ScriptFile, dir, function(id, status, p1, p2)
+		if status == dlstatus.STATUSEX_ENDDOWNLOAD then
+			if updates == nil then 
+				Logger("Ошибка при попытке обновиться.") 
+				addOneOffSound(0, 0, 0, 31202)
+				sms("Произошла ошибка при скачивании обновления. Попробуйте позднее...")
+			end
+		end
+		if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+			updates = true
+			Logger("Загрузка закончена")
+			sms("Скачивание обновления завершено, перезагрузка скрипта...")
+            addOneOffSound(0, 0, 0, 31205)
+			showCursor(false)
+            reloaded = true
+			scr:reload()
+		end
+	end)
+end
+function updateCheck()
+	sms("Проверяем наличие обновлений...")
+		local dir = dirscr.."info.upd"
+		downloadUrlToFile(GitHub.UpdateFile, dir, function(id, status, p1, p2)
+			if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+				lua_thread.create(function()
+					wait(1000)
+					if doesFileExist(dirscr.."info.upd") then
+						local f = io.open(dirscr.."info.upd", "r")
+						local upd = decodeJson(f:read("*a"))
+						f:close()
+						if type(upd) == "table" then
+							newversion = upd.version
+							newdate = upd.release_date
+							if upd.version == scr.version then
+								sms("Вы используете актуальную версию скрипта - v"..scr.version.." от "..newdate)
+							else
+								sms("Имеется обновление до версии v"..newversion.." от "..newdate.."! "..COLOR_YES.."/"..MAIN_CMD.."upd")
+                                needUpdate = true
+							end
+						end
+					end
+				end)
+			end
+		end)
+end
 addEventHandler('onWindowMessage', function(msg, wparam, lparam)
 	if wparam == 27 then
 		if WinState[0] then

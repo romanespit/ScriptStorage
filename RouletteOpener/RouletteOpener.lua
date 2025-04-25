@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Roulette Opener")
-script_version("1.3.0")
+script_version("1.3.1")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "RouletteOpener"
@@ -397,17 +397,19 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end, -- Main F
                 for i,v in ipairs(DropStats) do
                     imgui.TextColoredRGB(DropStats[i].Name.."{FFFF00} x"..DropStats[i].Count..COLOR_YES..(ItemPrice[DropStats[i].Name] ~= "0" and " $"..ItemPrice[DropStats[i].Name] or " Цена неизвестна"))
                     TotalDropPrice = TotalDropPrice+(tonumber(ItemPrice[DropStats[i].Name])*DropStats[i].Count)
-                    imgui.SameLine()
-                    imgui.Text(faicons.PEN_TO_SQUARE)
-                    if imgui.IsItemHovered() then
-                        imgui.BeginTooltip()
-                        imgui.Text(u8'Нажмите, чтобы изменить цену')
-                        imgui.EndTooltip()
-                    end        
-                    if imgui.IsItemClicked() then 
-                        PriceState[0] = not PriceState[0]
-                        PriceSetName = DropStats[i].Name
-                        imgui.StrCopy(imPrice, u8(ItemPrice[DropStats[i].Name]))
+                    if DropStats[i].Name ~= "Деньги" then
+                        imgui.SameLine()
+                        imgui.Text(faicons.PEN_TO_SQUARE)
+                        if imgui.IsItemHovered() then
+                            imgui.BeginTooltip()
+                            imgui.Text(u8'Нажмите, чтобы изменить цену')
+                            imgui.EndTooltip()
+                        end        
+                        if imgui.IsItemClicked() then 
+                            PriceState[0] = not PriceState[0]
+                            PriceSetName = DropStats[i].Name
+                            imgui.StrCopy(imPrice, u8(ItemPrice[DropStats[i].Name]))
+                        end
                     end
                 end
             end

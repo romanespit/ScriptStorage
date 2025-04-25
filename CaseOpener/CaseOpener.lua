@@ -1,6 +1,6 @@
 script_author("romanespit")
 script_name("Case Opener")
-script_version("1.2.0")
+script_version("1.2.1")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 ------------------------
@@ -79,15 +79,10 @@ end
 ------------------------ Default Config
 local settings = { 
     main={
-		DebugMode = true,
         KostStop = true,
         BlueprintStop = false,
         BlueprintNotifications = false       
-	},
-    DebugPos={
-        x = 220,
-        y = 570
-    }
+	}
 }
 local ItemPrice = {
     ["Ларец организации"] = "120000",
@@ -178,7 +173,6 @@ local needLoad = 0
 -- MimGUI
 local new, str = imgui.new, ffi.string
 local WinState = new.bool()
-local WinProcess = new.bool(settings.main.DebugMode)
 local KostStop = new.bool(settings.main.KostStop)
 local BlueprintNotifications = new.bool(settings.main.BlueprintNotifications)
 local BlueprintStop = new.bool(settings.main.BlueprintStop)
@@ -208,7 +202,6 @@ local button = { -- константы кнопок инвентаря
     Use = 2302,
     Page = {2107,2108,2109,2110,2111}
 }
-local changepos = false
 local OpenCount = 0
 local DropStats = {}
 local TotalDropPrice = 0
@@ -347,20 +340,7 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end,
                 SaveCFG()
                 sms("При дропе чертежа открытия "..(settings.main.BlueprintStop and COLOR_NO.."остановятся" or COLOR_YES.."продолжатся"))
             end            
-            imgui.Separator()        
-            imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
-            if imgui.Button(u8'Debug', imgui.ImVec2(200, 30)) then
-                settings.main.DebugMode = not settings.main.DebugMode
-                SaveCFG()
-                sms("Режим отладки "..(settings.main.DebugMode and COLOR_YES.."включен" or COLOR_NO.."выключен"))
-            end
-            if settings.main.DebugMode then
-                imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
-                if imgui.Button(u8'Изменить позицию окна', imgui.ImVec2(200, 30)) then
-                    changepos = true
-                    sms("Выберите позицию окна и нажмите ЛКМ")
-                end
-            end
+            imgui.Separator()
         end
         if imgui.CollapsingHeader(u8"Статистика") then
             imgui.Text(u8"Статистика открытий:")
@@ -372,17 +352,19 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end,
                 for i,v in ipairs(DropStats) do
                     imgui.TextColoredRGB(DropStats[i].Name.."{FFFF00} x"..DropStats[i].Count..COLOR_YES..(ItemPrice[DropStats[i].Name] ~= "0" and " $"..ItemPrice[DropStats[i].Name] or " Цена неизвестна"))
                     TotalDropPrice = TotalDropPrice+(tonumber(ItemPrice[DropStats[i].Name])*DropStats[i].Count)
-                    imgui.SameLine()
-                    imgui.Text(faicons.PEN_TO_SQUARE)
-                    if imgui.IsItemHovered() then
-                        imgui.BeginTooltip()
-                        imgui.Text(u8'Нажмите, чтобы изменить цену')
-                        imgui.EndTooltip()
-                    end        
-                    if imgui.IsItemClicked() then 
-                        PriceState[0] = not PriceState[0]
-                        PriceSetName = DropStats[i].Name
-                        imgui.StrCopy(imPrice, u8(ItemPrice[DropStats[i].Name]))
+                    if DropStats[i].Name ~= "Деньги" then
+                        imgui.SameLine()
+                        imgui.Text(faicons.PEN_TO_SQUARE)
+                        if imgui.IsItemHovered() then
+                            imgui.BeginTooltip()
+                            imgui.Text(u8'Нажмите, чтобы изменить цену')
+                            imgui.EndTooltip()
+                        end        
+                        if imgui.IsItemClicked() then 
+                            PriceState[0] = not PriceState[0]
+                            PriceSetName = DropStats[i].Name
+                            imgui.StrCopy(imPrice, u8(ItemPrice[DropStats[i].Name]))
+                        end
                     end
                 end
             end
@@ -398,19 +380,6 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end,
         imgui.End()
     end
 )
-imgui.OnFrame(function() return WinState[0] and settings.main.DebugMode end, function()
-    imgui.SetNextWindowPos(imgui.ImVec2(settings.DebugPos.x, settings.DebugPos.y), imgui.Cond.Always, imgui.ImVec2(1, 1))
-    --imgui.SetNextWindowSize(imgui.ImVec2(300, 250), imgui.Cond.Always)
-    imgui.Begin('Debug', WinProcess, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse+imgui.WindowFlags.NoMove+imgui.WindowFlags.NoTitleBar)
-    imgui.Text(u8"Страница: "..actualPage)
-    imgui.Text(u8"Последний клик: "..LastClickedTD)
-    imgui.Text(u8"Этап: "..stage)
-    imgui.Text(u8"Этап открытия: "..openStage)
-    imgui.Text(u8"Выбранный tdId: "..selectedItem)
-    imgui.Text(u8"Модель на TD: "..selectedModel)
-    
-    imgui.End()
-end).HideCursor = true
 imgui.OnFrame(function() return PriceState[0] end, -- Main Frame
     function(player)
         imgui.SetNextWindowPos(imgui.ImVec2(sx/3, 500), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
@@ -453,14 +422,6 @@ function main()
     stopOpening()
 	while true do
 		wait(0)
-        if changepos then 
-            settings.DebugPos.x, settings.DebugPos.y = getCursorPos() 
-            if isKeyJustPressed(1) then
-                changepos = false
-                SaveCFG()
-                sms("Позиция сохранена")
-            end
-        end
         if not WinState[0] and stage == "opening" then
             stopOpening("Окно скрипта было закрыто, открытие остановлено #M-1")
         end

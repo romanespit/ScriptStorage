@@ -558,7 +558,7 @@ function updateScript()
 	end)
 end
 function updateCheck()
-	sms("Проверяем наличие обновлений...")
+	--sms("Проверяем наличие обновлений...")
 		local dir = dirscr.."info.upd"
 		downloadUrlToFile(GitHub.UpdateFile, dir, function(id, status, p1, p2)
 			if status == dlstatus.STATUS_ENDDOWNLOADDATA then

@@ -14,6 +14,10 @@
 Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. Работает, как в командах, так и в обычном чате. Используйте конструкцию {e:text}
 
 ![](/docs/scriptScreens/EmojiHelper.png)
+### [FastPodsel](https://github.com/romanespit/ScriptStorage/tree/main/FastPodsel)
+Скрипт, упрощающий подселение и позволяющий быстро отправить предложение. При вводе общей суммы и изменении срока - калькулироваться будет почасовая и наоборот.
+
+![](/docs/scriptScreens/FastPodsel.png)
 ### [FastReport](https://github.com/romanespit/ScriptStorage/tree/main/FastReport)
 Скрипт, позволяющий отправить быстрый репорт по команде /rep text
 

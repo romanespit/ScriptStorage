@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Fast Podsel")
-script_version("1.0.0")
+script_version("1.2.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "FastPodsel"
@@ -320,22 +320,35 @@ function hook.onShowDialog(id, style, title, button1, button2, text)
         else sampSendDialogResponse(id, 1, 0) end
     end
     if id == 198 and PodselProcess then 
-        sampSendDialogResponse(id, 1, 0, PodselForm)
         if not imFreePodsel[0] then sampSendDialogResponse(id, 1, 0, PodselForm)
-        else
-            sampSendDialogResponse(id, 1, 0, tostring(PodselID))
-            sampCloseCurrentDialogWithButton(0)
-            sampSendChat("/b @"..sampGetPlayerNickname(PodselID)..", примите предложение через /offer")
-            PodselProcess = false
-            return false
-        end
+        else sampSendDialogResponse(id, 1, 0, tostring(PodselID)) end 
+        sampCloseCurrentDialogWithButton(0)
+        return false
     end
     if id == 27130 and PodselProcess then 
         sampSendDialogResponse(id, 1, 0)
 		sampCloseCurrentDialogWithButton(0)
+        
+		return false
+    end
+end
+function hook.onServerMessage(color, text)
+    if text:find("{......}Вы далеко от игрока") and PodselProcess then 
+        sampSendChat("/b @"..sampGetPlayerNickname(PodselID)..", подойдите ближе для отправки предложения!")
+        PodselProcess = false
+        return false
+    end
+    if text:find("{......}Вы предлагаете игроку {......}.+_.+{......} жить в комнате вашего дома") and PodselProcess then 
         sampSendChat("/b @"..sampGetPlayerNickname(PodselID)..", примите предложение через /offer")
         PodselProcess = false
-		return false
+    end
+    if text:find(".+_.+ принял ваше предложение пожить у вас в доме") and not imFreePodsel[0] then 
+        sampSendChat("/b Продлевать подселение вы можете самостоятельно в меню дома /home!")
+    end
+    if text:find("У игрока нет доступных слотов для аренды комнаты") and not imFreePodsel[0] then 
+        sampSendChat("/b @"..sampGetPlayerNickname(PodselID)..", у вас не хватает слотов для подселения! /mn > 1 > 6")
+        PodselProcess = false
+        return false
     end
 end
 function getNicknameById(id)

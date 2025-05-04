@@ -345,7 +345,7 @@ function hook.onServerMessage(color, text)
     if text:find(".+_.+ принял ваше предложение пожить у вас в доме") and not imFreePodsel[0] then 
         sampSendChat("/b Продлевать подселение вы можете самостоятельно в меню дома /home!")
     end
-    if text:find("У игрока нет доступных слотов для аренды комнаты") and not imFreePodsel[0] then 
+    if text:find("У игрока нет доступных слотов для аренды комнаты") then 
         sampSendChat("/b @"..sampGetPlayerNickname(PodselID)..", у вас не хватает слотов для подселения! /mn > 1 > 6")
         PodselProcess = false
         return false

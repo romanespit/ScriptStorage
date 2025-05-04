@@ -213,7 +213,7 @@ imgui.OnFrame(function() return WinState[0] end, -- Main Frame
             end
             imgui.SetCursorPos(imgui.ImVec2(70, 21))
             imgui.Text(os.date('%Y-%m-%d %H:%M:%S')..'\n'.. imLogoList[ini.main.logo+1] ..' #'..(ini.main.myid and myid or ini.main.id), 2, imgui.ImVec4(1, 1, 1, 1), imgui.ImVec4(0, 0, 0, 1))
-            if isCarSirenOn(storeCarCharIsInNoSave(PLAYER_PED)) then
+            if isCharInAnyCar(PLAYER_PED) and isCarSirenOn(storeCarCharIsInNoSave(PLAYER_PED)) then
                 imgui.SetCursorPos(imgui.ImVec2(230, 7))
                 imgui.Image(Siren, imgui.ImVec2(15, 15))
             end

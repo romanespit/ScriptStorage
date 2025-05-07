@@ -1,0 +1,106 @@
+{
+    "BodyCam": {
+        "release_date": "10.04.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/BodyCam.lua?raw=true",
+        "main_cmd": "/bc",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "CaseOpener": {
+        "release_date": "17.04.2025",
+        "author": "romanespit",
+        "version": "1.2.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/CaseOpener/CaseOpener.lua?raw=true",
+        "main_cmd": "/co",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "EmojiHelper": {
+        "release_date": "11.04.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/EmojiHelper/EmojiHelper.lua?raw=true",
+        "main_cmd": "Отсутствует, активация автоматическая",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "FastPodsel": {
+        "release_date": "27.04.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastPodsel/FastPodsel.lua?raw=true",
+        "main_cmd": "/podsel",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "FastReport": {
+        "release_date": "10.04.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastReport/FastReport.lua?raw=true",
+        "main_cmd": "/rep",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "PhoneNotifier": {
+        "release_date": "07.04.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/PhoneNotifier/PhoneNotifier.lua?raw=true",
+        "main_cmd": "/pn",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "PropertyChecker": {
+        "release_date": "07.04.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/PropertyChecker/PropertyChecker.lua?raw=true",
+        "main_cmd": "/checkp",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "RouletteOpener": {
+        "release_date": "15.04.2025",
+        "author": "romanespit",
+        "version": "1.3.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/RouletteOpener/RouletteOpener.lua?raw=true",
+        "main_cmd": "/ro",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "arizona-hungry-run": {
+        "release_date": "04.05.2025",
+        "author": "wojciech?",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/arizona-hungry-run.lua?raw=true",
+        "main_cmd": "Отсутствует, активация автоматическая",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "ArizonaAntiTDLag": {
+        "release_date": "Неизвестно",
+        "author": "Freym",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/ArizonaAntiTDLag.lua?raw=true",
+        "main_cmd": "Отсутствует, активация автоматическая",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "Fix3dTexts": {
+        "release_date": "05.05.2025",
+        "author": "XRLM",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/Fix3dTexts.lua?raw=true",
+        "main_cmd": "Отсутствует, активация автоматическая",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "FuckBanner": {
+        "release_date": "04.05.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/FuckBanner.lua?raw=true",
+        "main_cmd": "Отсутствует, активация автоматическая",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    },
+    "LavkaNespit": {
+        "release_date": "04.05.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/LavkaNespit.lua?raw=true",
+        "main_cmd": "/rlavka",
+        "description": "Тестовое описание & Следующая строка & {FFFF00}Цветное сообщение"
+    }
+}

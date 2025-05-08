@@ -8,65 +8,65 @@
         "description": "Менеджер скриптов от автора {FFFF00}romanespit\n{FFFFFF}Позволяет управлять скриптами разработки автора: Установка, Обновление, Удаление, Перезагрузка"
     },
     "BodyCam": {
-        "release_date": "10.04.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/BodyCam.lua?raw=true",
         "main_cmd": "/bcset",
         "description": "Скрипт для отрисовки интерфейса бодикамеры на экране.\nТакже есть поддержка записи Windows (скрипт имитирует нажатие WIN+ALT+R, что начинает/останавливает запись)."
     },
     "CaseOpener": {
-        "release_date": "17.04.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit",
-        "version": "1.2.1",
+        "version": "1.3.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/CaseOpener/CaseOpener.lua?raw=true",
         "main_cmd": "/co",
         "description": "Скрипт, автоматически открывающий кейсы в инвентаре.\nТакже ведёт статистику дропа за сессию (без сохранения) с возможностю сохранения цен. \n{FF0000}Не работает на некоторых ларцах (Arizona, Мусорщика и им подобные)"
     },
     "EmojiHelper": {
-        "release_date": "11.04.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/EmojiHelper/EmojiHelper.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. Работает, как в командах, так и в обычном чате.\nИспользуйте конструкцию {36C500}{e:text}"
+        "description": "Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. \nРаботает, как в командах, так и в обычном чате.\nИспользуйте конструкцию {36C500}{e:text}"
     },
     "FastPodsel": {
-        "release_date": "27.04.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastPodsel/FastPodsel.lua?raw=true",
         "main_cmd": "/podsel",
         "description": "Скрипт, упрощающий подселение и позволяющий быстро отправить предложение.\nПри вводе общей суммы и изменении срока - калькулироваться будет почасовая и наоборот."
     },
     "FastReport": {
-        "release_date": "10.04.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastReport/FastReport.lua?raw=true",
         "main_cmd": "/rep",
         "description": "Скрипт, позволяющий отправить быстрый репорт по команде {36C500}/rep text"
     },
     "PhoneNotifier": {
-        "release_date": "07.04.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/PhoneNotifier/PhoneNotifier.lua?raw=true",
         "main_cmd": "/pn",
         "description": "Скрипт, уведомляющий в Telegram о входящих звонках и СМС"
     },
     "PropertyChecker": {
-        "release_date": "07.04.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit, Read1dno",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/PropertyChecker/PropertyChecker.lua?raw=true",
         "main_cmd": "/checkp",
         "description": "Скрипт, позволяющий в игре узнать о домах/бизнесах игрока.\nОсновной код взят от {36C500}Read1dno{FFFFFF}. Переписан на mimgui и доработан {36C500}romanespit{FFFFFF}."
     },
     "RouletteOpener": {
-        "release_date": "15.04.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit",
-        "version": "1.3.1",
+        "version": "1.4.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/RouletteOpener/RouletteOpener.lua?raw=true",
         "main_cmd": "/ro",
         "description": "Скрипт, ускоряющий и автоматизирующий открытие рулеток\n(бронзовых, серебряных, золотых, платиновых)"

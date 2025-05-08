@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Body Camera Overlay")
-script_version("1.0.0")
+script_version("1.1.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "BodyCam"
@@ -91,6 +91,9 @@ local ini = inicfg.load(inicfg.load({
 inicfg.save(ini, directIni)
 function sms(text)
     sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
+end
+function tech_sms(text)
+    if not doesFileExist(dirml..'/NespitManager.lua') and not doesFileExist(dirml..'/NespitManager.luac') then sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR) end
 end
 function Logger(text)
     print(COLOR_YES..text)
@@ -308,7 +311,7 @@ imgui.OnFrame(function() return SetState[0] end, -- Settings Frame
 ------------------------ 
 function onScriptTerminate(scr, is_quit)
 	if scr == thisScript() and not is_quit and not reloaded then
-        sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
+        tech_sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
 	end
 end
 ------------------------ Script Commands
@@ -348,8 +351,6 @@ function RegisterScriptCommands()
             ScreenProcess = false
         end)
     end)
-    
-    sampRegisterChatCommand(MAIN_CMD.."rl", function() sms("Перезагружаемся...") reloaded = true scr:reload() end) -- Перезагрузка скрипта
     Logger("Успешная регистрация команд скрипта")
 end
 ------------------------ Main Function
@@ -358,7 +359,7 @@ function main()
 	repeat wait(100) until sampIsLocalPlayerSpawned()
     CheckAndDownloadFiles()
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
-    sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
+    tech_sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)
     WinState[0] = ini.main.enabled
@@ -608,7 +609,6 @@ function MimStyle()
     colors[imgui.Col.NavWindowingHighlight] = imgui.ImVec4(1.00, 1.00, 1.00, 0.70);
     colors[imgui.Col.NavWindowingDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.20);
     colors[imgui.Col.ModalWindowDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.35);
-    Logger("Стили mimgui успешно применены")
 end
 addEventHandler('onWindowMessage', function(msg, wparam, lparam)
 	if wparam == 27 then

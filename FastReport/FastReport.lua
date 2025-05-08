@@ -4,7 +4,7 @@ SAMP.lua - https://www.blast.hk/threads/14624/
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Fast Report Command")
-script_version("1.0.0")
+script_version("1.1.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "FastReport"
@@ -23,10 +23,20 @@ local ReportProcess = false
 local DIALOG_REPORT = 32
 local DIALOG_REPORT_RESPONSE = 1333
 local DIALOG_REPORT_FEEDBACK = 1332
+------------------------ Another Funcs
+function sms(text)
+    sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
+end
+function tech_sms(text)
+    if not doesFileExist(dirml..'/NespitManager.lua') and not doesFileExist(dirml..'/NespitManager.luac') then sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR) end
+end
+function Logger(text)
+    print(COLOR_YES..text)
+end
 ------------------------ 
 function onScriptTerminate(scr, is_quit)
 	if scr == thisScript() and not is_quit and not reloaded then
-        sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
+        tech_sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
 	end
 end
 ------------------------ Script Commands
@@ -44,7 +54,7 @@ end
 function main() 
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned()
-	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
+	tech_sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)
@@ -81,11 +91,4 @@ function hook.onServerMessage(_,text)
         sms("Репорт: "..COLOR_YES..text)
         return false
     end
-end
------------------------- Another Funcs
-function sms(text)
-    sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
-end
-function Logger(text)
-    print(COLOR_YES..text)
 end

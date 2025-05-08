@@ -6,7 +6,7 @@ mimgui - https://www.blast.hk/threads/66959/
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Telegram Phone Notifier")
-script_version("1.0.0")
+script_version("1.1.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "PhoneNotifier"
@@ -69,9 +69,14 @@ local LastSMSSender = "None"
 local LastSMSText = "None"
 local LastCallTime = os.clock()
 local OutcomingCall = 0
+local CallByID = -1
+local LastCallNumber = nil
 ------------------------ Another Funcs
 function sms(text)
     sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
+end
+function tech_sms(text)
+    if not doesFileExist(dirml..'/NespitManager.lua') and not doesFileExist(dirml..'/NespitManager.luac') then sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR) end
 end
 function Logger(text)
     print(COLOR_YES..text)
@@ -101,12 +106,15 @@ local imCallNotifications = new.bool(settings.main.CallNotifications)
 imgui.OnInitialize(function()
     imgui.GetIO().IniFilename = nil
     local config = imgui.ImFontConfig()
+    local glyph_ranges = imgui.GetIO().Fonts:GetGlyphRangesCyrillic()
     config.MergeMode = true
     config.PixelSnapH = true
     iconRanges = imgui.new.ImWchar[3](faicons.min_range, faicons.max_range, 0)
     --Font
-	imgui.GetIO().Fonts:Clear()
-    if doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 15, nil, glyph_ranges) else Logger("Отсутствует файл EagleSans-Regular.ttf. Скрипт выгружен") scr:unload() end
+    if doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then        
+        imgui.GetIO().Fonts:Clear()
+        imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 15, nil, glyph_ranges)
+    end
     imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 14, config, iconRanges)
     MimStyle()
 end)
@@ -139,26 +147,48 @@ imgui.OnFrame(function() return WinState[0] end, -- Main Frame
             sms("Тестовое сообщение в Telegram было отправлено!")
         end
         imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))
+
+        imgui.SameLine()
+
+        local text = u8('Команды скрипта')
+        local tSize = imgui.CalcTextSize(text)
+        local p = imgui.GetCursorScreenPos()
+        local DL = imgui.GetWindowDrawList()
+        local col = { 0xFFFF7700, 0xFFFF9900 }
+        if imgui.InvisibleButton("##commands", tSize) then
+            sms("Команды скрипта "..COLOR_MAIN..SCRIPT_SHORTNAME)
+            sms(COLOR_YES.."/"..MAIN_CMD.."{FFFFFF} - Открыть меню скрипта")
+            sms(COLOR_YES.."/zv [id]{FFFFFF} - позвонить игроку")
+        end
+        local color = imgui.IsItemHovered() and col[1] or col[2]
+        DL:AddText(p, color, text)
+        DL:AddLine(imgui.ImVec2(p.x, p.y + tSize.y), imgui.ImVec2(p.x + tSize.x, p.y + tSize.y), color)
         imgui.End()
     end
 )
 ------------------------ 
 function onScriptTerminate(scr, is_quit)
 	if scr == thisScript() and not is_quit and not reloaded then
-        sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
+        tech_sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
 	end
 end
 ------------------------ Script Commands
 function RegisterScriptCommands()
     sampRegisterChatCommand(MAIN_CMD, function() WinState[0] = not WinState[0] end) -- Главное окно скрипта
-    sampRegisterChatCommand(MAIN_CMD.."rl", function() sms("Перезагружаемся...") reloaded = true scr:reload() end) -- Перезагрузка скрипта
+    sampRegisterChatCommand("zv", function(par)
+        if par:find("%d+") then
+            CallByID = tonumber(par)
+            sampSendChat("/number "..par)
+        else sms("Используйте: "..COLOR_YES.."/zv [id]") end
+        
+    end) -- Перезагрузка скрипта
     Logger("Успешная регистрация команд скрипта")
 end
 ------------------------ Main Function
 function main()
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned()
-	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
+	tech_sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)
@@ -168,6 +198,32 @@ function main()
     wait(-1)
 end
 ------------------------ Samp Events Hook funcs
+function hook.onShowDialog(id, style, title, button1, button2, text)
+    if id == 0 and title:find("Телефонная книга") and CallByID ~= -1 then
+        sampSendDialogResponse(id, 1, 0, nil)
+        sampCloseCurrentDialogWithButton(0)
+        thread = lua_thread.create(function()
+            wait(500)
+            CallByID = -1
+        end)
+        return false
+    end
+end
+function hook.onServerMessage(_,text)
+	if text:find("{......}(.+_.+)%[(%d+)%]:.+{......}(%d+)") and CallByID ~= -1 then
+        local nick,id,number = text:match("{......}(.+_.+)%[(%d+)%]:.+{......}(%d+)")
+        sms("Звоним "..nick.."["..id.."]: "..COLOR_YES..number)
+        sampSendChat("/call "..number)
+
+        return false
+        -- {FFFFFF}Con_Serve[464]:    {33CCFF}1717111
+    end
+    if CallByID ~= -1 and text:find("%[Ошибка%] {......}Игрок не в сети") then 
+        sms("Игрок ID "..CallByID.." не в сети")
+        CallByID = -1
+        return false
+    end
+end
 function hook.onSendSpawn()
 	_, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
 	myNick = sampGetPlayerNickname(myid)
@@ -446,7 +502,6 @@ function MimStyle()
     colors[imgui.Col.NavWindowingHighlight] = imgui.ImVec4(1.00, 1.00, 1.00, 0.70);
     colors[imgui.Col.NavWindowingDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.20);
     colors[imgui.Col.ModalWindowDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.35);
-    Logger("Стили mimgui успешно применены")
 end
 addEventHandler('onWindowMessage', function(msg, wparam, lparam)
 	if wparam == 27 then

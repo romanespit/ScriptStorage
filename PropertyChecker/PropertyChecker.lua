@@ -2,7 +2,7 @@
 ------------------------ Main Variables
 script_author("romanespit","Read1dno")
 script_name("Property Checker")
-script_version("1.0.0")
+script_version("1.1.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "PropertyChecker"
@@ -64,14 +64,6 @@ local dirscr = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/"
 local sx, sy = getScreenResolution() -- Разрешение экрана
 local reloaded = false
 local thread = lua_thread.create(function() return end)
------------------------- Updates
-local newversion = ""
-local newdate = ""
-local needUpdate = false
-local GitHub = {
-    UpdateFile = "https://github.com/romanespit/ScriptStorage/blob/main/"..SCRIPT_SHORTNAME.."/info.upd?raw=true",
-    ScriptFile = "https://github.com/romanespit/ScriptStorage/blob/main/"..SCRIPT_SHORTNAME.."/"..SCRIPT_SHORTNAME..".lua?raw=true"
-}
 ------------------------ Another Variables
 -- Таблица серверов и их IP-адресов
 local servers = {
@@ -114,6 +106,9 @@ local ActiveTab = 1
 ------------------------ Another Funcs
 function sms(text)
     sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR)
+end
+function tech_sms(text)
+    if not doesFileExist(dirml..'/NespitManager.lua') and not doesFileExist(dirml..'/NespitManager.luac') then sampAddChatMessage(SCRIPT_PREFIX..text, SCRIPT_COLOR) end
 end
 function Logger(text)
     print(COLOR_YES..text)
@@ -402,7 +397,7 @@ imgui.OnFrame(function() return WinState[0] end, -- Main Frame
 ------------------------ 
 function onScriptTerminate(scr, is_quit)
 	if scr == thisScript() and not is_quit and not reloaded then
-        sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
+        tech_sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
 	end
 end
 ------------------------ Script Commands
@@ -429,12 +424,6 @@ function RegisterScriptCommands()
             WinState[0] = not WinState[0]
         end
     end) -- Главное окно скрипта
-    sampRegisterChatCommand(MAIN_CMD.."rl", function() sms("Перезагружаемся...") reloaded = true scr:reload() end) -- Перезагрузка скрипта
-    sampRegisterChatCommand(MAIN_CMD.."upd", function() -- Обновление скрипта
-        if needUpdate then
-            updateScript()
-        else sms("Вы используете актуальную версию") end
-    end)
     Logger("Успешная регистрация команд скрипта")
 end
 ------------------------ Main Function
@@ -444,8 +433,7 @@ function main()
     CheckAndDownloadFiles()
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
     loadAndSaveConfig() -- Загрузка и сохранение конфигурации при старте
-	sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
-    updateCheck() -- Проверка обновлений
+	tech_sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)
     while true do
@@ -1075,56 +1063,6 @@ function MimStyle()
     colors[imgui.Col.NavWindowingHighlight] = imgui.ImVec4(1.00, 1.00, 1.00, 0.70);
     colors[imgui.Col.NavWindowingDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.20);
     colors[imgui.Col.ModalWindowDimBg] = imgui.ImVec4(0.80, 0.80, 0.80, 0.35);
-    Logger("Стили mimgui успешно применены")
-end
-function updateScript()
-	sms("Производится скачивание новой версии скрипта...")
-	local dir = dirml.."/"..SCRIPT_SHORTNAME..".lua"
-	local updates = nil
-	downloadUrlToFile(GitHub.ScriptFile, dir, function(id, status, p1, p2)
-		if status == dlstatus.STATUSEX_ENDDOWNLOAD then
-			if updates == nil then 
-				Logger("Ошибка при попытке обновиться.") 
-				addOneOffSound(0, 0, 0, 31202)
-				sms("Произошла ошибка при скачивании обновления. Попробуйте позднее...")
-			end
-		end
-		if status == dlstatus.STATUS_ENDDOWNLOADDATA then
-			updates = true
-			Logger("Загрузка закончена")
-			sms("Скачивание обновления завершено, перезагрузка скрипта...")
-            addOneOffSound(0, 0, 0, 31205)
-			showCursor(false)
-            reloaded = true
-			scr:reload()
-		end
-	end)
-end
-function updateCheck()
-	sms("Проверяем наличие обновлений...")
-    local dir = dirscr.."info.upd"
-    downloadUrlToFile(GitHub.UpdateFile, dir, function(id, status, p1, p2)
-        if status == dlstatus.STATUS_ENDDOWNLOADDATA then
-            lua_thread.create(function()
-                wait(1000)
-                if doesFileExist(dirscr.."info.upd") then
-                    local f = io.open(dirscr.."info.upd", "r")
-                    local upd = decodeJson(f:read("*a"))
-                    f:close()
-                    if type(upd) == "table" then
-                        newversion = upd.version
-                        newdate = upd.release_date
-                        if upd.version == scr.version then
-                            sms("Вы используете актуальную версию скрипта - v"..scr.version.." от "..newdate)
-                        else
-                            sms("Имеется обновление до версии v"..newversion.." от "..newdate.."! "..COLOR_YES.."/"..MAIN_CMD.."upd")
-                            needUpdate = true
-                        end
-                    end
-                end
-            end)
-        end
-    end)
 end
 function sendTelegram(notification,msg)
 	if telegram.id ~= "" and telegram.token ~= "" then

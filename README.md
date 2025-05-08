@@ -3,8 +3,13 @@
 В первую очередь всегда проверяйте наличие уже отправленных проблем. Если ваша проблема не подходит ни под один кейс, создайте репорт о проблеме по [инструкции](/HOWTO-REPORT.md).
 
 ## Список скриптов и их краткое описание
+### [NespitManager](https://github.com/romanespit/ScriptStorage/tree/main/NespitManager)
+Скрипт для удобного управления скриптами моей (и не только) разработки
+
+![](/docs/scriptScreens/NespitManager.png)
 ### [BodyCam](https://github.com/romanespit/ScriptStorage/tree/main/BodyCam)
 Скрипт для отрисовки интерфейса бодикамеры на экране. Также есть поддержка записи Windows (скрипт имитирует нажатие WIN+ALT+R, что начинает/останавливает запись).
+
 ![](/docs/scriptScreens/BodyCam.png)
 ### [CaseOpener](https://github.com/romanespit/ScriptStorage/tree/main/CaseOpener)
 Скрипт, автоматически открывающий кейсы в инвентаре. Также ведёт статистику дропа за сессию (без сохранения). Не работает на некоторых ларцах
@@ -22,6 +27,10 @@
 Скрипт, позволяющий отправить быстрый репорт по команде /rep text
 
 ![](/docs/scriptScreens/FastReport.png)
+### [FindGoodsVC](https://github.com/romanespit/ScriptStorage/tree/main/FindGoodsVC)
+Скрипт, позволяющий отправить быстрый репорт по команде /rep text
+
+![](/docs/scriptScreens/FindGoodsVC.png)
 ### [PhoneNotifier](https://github.com/romanespit/ScriptStorage/tree/main/PhoneNotifier)
 Скрипт, уведомляющий в Telegram о входящих звонках и СМС
 

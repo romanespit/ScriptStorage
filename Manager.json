@@ -47,6 +47,14 @@
         "main_cmd": "/rep",
         "description": "—крипт, позвол€ющий отправить быстрый репорт по команде {36C500}/rep text"
     },
+    "FindGoodsVC": {
+        "release_date": "08.05.2025",
+        "author": "romanespit",
+        "version": "1.1.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FindGoodsVC/FindGoodsVC.luac?raw=true",
+        "main_cmd": "/fg",
+        "description": "—крипт, позвол€ющий искать товар по лавкам ViceCity\n(по аналогии с функцией Arz Market)"
+    },
     "PhoneNotifier": {
         "release_date": "08.05.2025",
         "author": "romanespit",

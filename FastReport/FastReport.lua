@@ -17,6 +17,7 @@ SCRIPT_PREFIX = COLOR_MAIN.."[ "..SCRIPT_SHORTNAME.." ]{FFFFFF}: "
 local hook = require 'lib.samp.events'
 local encoding = require('encoding')
 encoding.default = 'cp1251'
+local dirml = getWorkingDirectory() -- Директория moonloader
 ------------------------ Another Variables
 local ReportText = nil
 local ReportProcess = false

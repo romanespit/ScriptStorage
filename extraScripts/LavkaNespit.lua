@@ -2,7 +2,7 @@
 
 script_author("romanespit")
 script_name("Lavka Nespit")
-script_version("1.0.0")
+script_version("1.1.0")
 local active = false
 local mylavka = 0
 font = renderCreateFont("Trebuchet MS", 12, 5)

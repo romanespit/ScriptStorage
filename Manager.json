@@ -112,9 +112,9 @@
         "description": "Убирает назойливый баннер ивента при входе в игру"
     },
     "LavkaNespit": {
-        "release_date": "04.05.2025",
+        "release_date": "08.05.2025",
         "author": "romanespit",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/LavkaNespit.lua?raw=true",
         "main_cmd": "/rlavka",
         "description": "Скрипт, отрисовывающий круги вокруг лавок, чтобы фармилы могли тыкнуть свою лавку\nДля того, чтобы найти свою лавку, введите {36C500}/mylavka"

@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Roulette Opener")
-script_version("1.4.0")
+script_version("1.5.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "RouletteOpener"
@@ -218,8 +218,6 @@ function onReceivePacket(id, bs)
             local length = raknetBitStreamReadInt16(bs)
             local encoded = raknetBitStreamReadInt8(bs)
             local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
-			--local text = raknetBitStreamReadString(bs, raknetBitStreamReadInt32(bs))
-            --print("[DBG] cef received | text="..text)
             if text:find("event.setActiveView") and not text:find("CrateRoulette") then
                 stage = "notready"
             elseif text:find("event.crate.roulette.onCrateOpen") then
@@ -228,15 +226,11 @@ function onReceivePacket(id, bs)
                     thread = lua_thread.create(function()
                         if cfg.HasCompass == true then 
                             wait(700)                            
-                            --print("[DBG] wait 700 | hasCompass=true | stage="..stage)
                         else
                             wait(cfg.Timer*1000)
-                            --print("[DBG] wait ".. cfg.Timer*1000 .." | hasCompass=true | stage="..stage)
                         end                        
                         cefSend("crate.roulette.takePrize")
-                        --print("[DBG] send takePrize")
                         cefSend("crate.roulette.exit") 
-                        --print("[DBG] send exit")
                         if NeedToOpen > 0 then
                             NeedToOpen = NeedToOpen-1
                             if NeedToOpen == 0 then
@@ -252,8 +246,6 @@ end
 ------------------------ Another Funcs
 function AddDrop(name,count)
     if ItemPrice[name] == nil then ItemPrice[name] = "0" SaveItemPrices() end
-    
-    --print("[DBG] AddDrop|"..name.."|"..count)
     local found = false
     OpenCount = OpenCount + 1
     if #DropStats > 0 then
@@ -273,23 +265,17 @@ function cefSend(text)
     local bs = raknetNewBitStream()
 	raknetBitStreamWriteInt8(bs, 220)
 	raknetBitStreamWriteInt8(bs, 18)
-	--raknetBitStreamWriteInt32(bs, string.len(text))
 	raknetBitStreamWriteInt16(bs, string.len(text))
 	raknetBitStreamWriteString(bs, text)
 	raknetSendBitStreamEx(bs, 1, 7, 1)
 	raknetDeleteBitStream(bs)
-end
------------------------- Script Commands
-function RegisterScriptCommands()
-    sampRegisterChatCommand(MAIN_CMD, function() WinState[0] = not WinState[0] end) -- Главное окно скрипта
-    Logger("Успешная регистрация команд скрипта")
 end
 ------------------------ Main Function
 function main()
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned() 
     CheckAndDownloadFiles()
-    RegisterScriptCommands() -- Регистрация объявленных команд скрипта
+    sampRegisterChatCommand(MAIN_CMD, function() WinState[0] = not WinState[0] end) -- Главное окно скрипта
     LoadItemPrices()
 	tech_sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     while true do
@@ -300,7 +286,6 @@ end
 ------------------------ Samp Events Hook funcs
 function hook.onShowDialog(id, style, title, button1, button2, text)
     if id == 0 and text:find("Поздравляем с получением") then 
-        --print("[DBG] OSD Received")
         local prize,count = text:match("Поздравляем с получением: {......}(.+) %((%d+) шт%){......}")
         AddDrop(prize,count)
         sampSendDialogResponse(id, 1, 0, nil)
@@ -310,10 +295,8 @@ function hook.onShowDialog(id, style, title, button1, button2, text)
 end
 function hook.onServerMessage(color,text)
     if text:find("%[Подсказка%] {......}Вы получили %+%$.+%!") then
-        --print("[DBG] OSM Received")
         AddDrop("Деньги",text:gsub("%p",""):match("(%d+)"))
     end
-    -- [Подсказка] {FFFFFF}Вы получили 5 подарков, которые можно обменять у Эдварда!
 end
 ------------------------ 
 imgui.OnInitialize(function()
@@ -401,6 +384,23 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end, -- Main F
                         end
                     end
                 end
+                imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
+                if imgui.Button(u8'Сохранить в файл', imgui.ImVec2(200, 30)) then
+                    local text = ""
+                    local filepath = dirscr.."SavedDrop-"..os.date("%d%m%y-%H-%M-%S")..".log"
+                    local file = io.open(filepath, "w")
+                    if file then
+                        TotalDropPrice = 0
+                        for i,v in ipairs(DropStats) do
+                            TotalDropPrice = TotalDropPrice+(tonumber(ItemPrice[DropStats[i].Name])*DropStats[i].Count)
+                            text = text.."\n"..DropStats[i].Name.." - x"..DropStats[i].Count..". Средняя цена: "..(ItemPrice[DropStats[i].Name] ~= "0" and " $"..ItemPrice[DropStats[i].Name] or " Цена неизвестна")  
+                        end
+                        text = text.."\n\nОбщая цена дропа: $"..TotalDropPrice
+                        file:write(u8(text))
+                        file:close()
+                    end
+                    sms("Дроп сохранен в файл /moonloader/rmnsptScripts/"..SCRIPT_SHORTNAME.."/SavedDrop-"..os.date("%d%m%y-%H-%M-%S")..".log")
+                end 
             end
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
             if imgui.Button(u8'Обнулить статистику', imgui.ImVec2(200, 30)) then
@@ -415,7 +415,6 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end, -- Main F
         imgui.End()
     end
 )
-
 imgui.OnFrame(function() return PriceState[0] end, -- Main Frame
     function(player)
         imgui.SetNextWindowPos(imgui.ImVec2(sx/3, 500), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))

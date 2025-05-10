@@ -28,7 +28,8 @@
 
 ![](/docs/scriptScreens/FastReport.png)
 ### [FindGoodsVC](https://github.com/romanespit/ScriptStorage/tree/main/FindGoodsVC)
-Скрипт, позволяющий отправить быстрый репорт по команде /rep text
+Скрипт, позволяющий искать товар по лавкам ViceCity
+(по аналогии с функцией Arz Market)
 
 ![](/docs/scriptScreens/FindGoodsVC.png)
 ### [PhoneNotifier](https://github.com/romanespit/ScriptStorage/tree/main/PhoneNotifier)

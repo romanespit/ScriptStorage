@@ -1,6 +1,6 @@
 script_author("romanespit")
 script_name("Case Opener")
-script_version("1.3.0")
+script_version("1.4.0")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 ------------------------
@@ -364,6 +364,23 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end,
                         end
                     end
                 end
+                imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
+                if imgui.Button(u8'Сохранить в файл', imgui.ImVec2(200, 30)) then
+                    local text = ""
+                    local filepath = dirscr.."SavedDrop-"..os.date("%d%m%y-%H-%M-%S")..".log"
+                    local file = io.open(filepath, "w")
+                    if file then
+                        TotalDropPrice = 0
+                        for i,v in ipairs(DropStats) do
+                            TotalDropPrice = TotalDropPrice+(tonumber(ItemPrice[DropStats[i].Name])*DropStats[i].Count)
+                            text = text.."\n"..DropStats[i].Name.." - x"..DropStats[i].Count..". Средняя цена: "..(ItemPrice[DropStats[i].Name] ~= "0" and " $"..ItemPrice[DropStats[i].Name] or " Цена неизвестна")  
+                        end
+                        text = text.."\n\nОбщая цена дропа: $"..TotalDropPrice
+                        file:write(u8(text))
+                        file:close()
+                    end
+                    sms("Дроп сохранен в файл /moonloader/rmnsptScripts/"..SCRIPT_SHORTNAME.."/SavedDrop-"..os.date("%d%m%y-%H-%M-%S")..".log")
+                end 
             end
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
             if imgui.Button(u8'Обнулить статистику', imgui.ImVec2(200, 30)) then

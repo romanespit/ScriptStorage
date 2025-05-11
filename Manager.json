@@ -5,7 +5,8 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/NespitManager/NespitManager.luac?raw=true",
         "main_cmd": "/nm",
-        "description": "Менеджер скриптов от автора {FFFF00}romanespit\n{FFFFFF}Позволяет управлять скриптами разработки автора: Установка, Обновление, Удаление, Перезагрузка"
+        "description": "Менеджер скриптов от автора {FFFF00}romanespit\n{FFFFFF}Позволяет управлять скриптами разработки автора: Установка, Обновление, Удаление, Перезагрузка",
+        "label":""
     },
     "BodyCam": {
         "release_date": "08.05.2025",
@@ -13,7 +14,8 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/BodyCam/BodyCam.lua?raw=true",
         "main_cmd": "/bcset",
-        "description": "Скрипт для отрисовки интерфейса бодикамеры на экране.\nТакже есть поддержка записи Windows (скрипт имитирует нажатие WIN+ALT+R, \nчто начинает/останавливает запись)."
+        "description": "Скрипт для отрисовки интерфейса бодикамеры на экране.\nТакже есть поддержка записи Windows (скрипт имитирует нажатие WIN+ALT+R, \nчто начинает/останавливает запись).",
+        "label":""
     },
     "AutoFill": {
         "release_date": "10.05.2025",
@@ -21,7 +23,8 @@
         "version": "1.0.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/AutoFill/AutoFill.lua?raw=true",
         "main_cmd": "Включено автоматически, переключать - /af",
-        "description": "Скрипт автоматически заправляет на заправках авто\nФикс скрипта JustFedot - {FFFF00}[JF] AutoFill\n\n{4682B4}Rest in peace, legend!"
+        "description": "Скрипт автоматически заправляет на заправках авто\nФикс скрипта JustFedot - {FFFF00}[JF] AutoFill\n\n{4682B4}Rest in peace, legend!",
+        "label":"Новый скрипт"
     },
     "CaseOpener": {
         "release_date": "10.05.2025",
@@ -29,7 +32,8 @@
         "version": "1.4.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/CaseOpener/CaseOpener.lua?raw=true",
         "main_cmd": "/co",
-        "description": "Скрипт, автоматически открывающий кейсы в инвентаре.\nТакже ведёт статистику дропа за сессию (без сохранения) с возможностю сохранения цен. \n{FF0000}Не работает на некоторых ларцах (Arizona, Мусорщика и им подобные)"
+        "description": "Скрипт, автоматически открывающий кейсы в инвентаре.\nТакже ведёт статистику дропа за сессию (без сохранения) с возможностю сохранения цен. \n{FF0000}Не работает на некоторых ларцах (Arizona, Мусорщика и им подобные)",
+        "label":""
     },
     "EmojiHelper": {
         "release_date": "08.05.2025",
@@ -37,7 +41,8 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/EmojiHelper/EmojiHelper.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. \nРаботает, как в командах, так и в обычном чате.\nИспользуйте конструкцию {e:text}"
+        "description": "Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. \nРаботает, как в командах, так и в обычном чате.\nИспользуйте конструкцию {e:text}",
+        "label":""
     },
     "FastPodsel": {
         "release_date": "08.05.2025",
@@ -45,7 +50,8 @@
         "version": "1.3.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastPodsel/FastPodsel.lua?raw=true",
         "main_cmd": "/podsel",
-        "description": "Скрипт, упрощающий подселение и позволяющий быстро отправить предложение.\nПри вводе общей суммы и изменении срока - калькулироваться будет\nпочасовая и наоборот."
+        "description": "Скрипт, упрощающий подселение и позволяющий быстро отправить предложение.\nПри вводе общей суммы и изменении срока - калькулироваться будет\nпочасовая и наоборот.",
+        "label":""
     },
     "FastReport": {
         "release_date": "08.05.2025",
@@ -53,7 +59,8 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastReport/FastReport.lua?raw=true",
         "main_cmd": "/rep",
-        "description": "Скрипт, позволяющий отправить быстрый репорт по команде {36C500}/rep text"
+        "description": "Скрипт, позволяющий отправить быстрый репорт по команде {36C500}/rep text",
+        "label":""
     },
     "FindGoodsVC": {
         "release_date": "08.05.2025",
@@ -61,7 +68,8 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FindGoodsVC/FindGoodsVC.luac?raw=true",
         "main_cmd": "/fg",
-        "description": "Скрипт, позволяющий искать товар по лавкам ViceCity\n(по аналогии с функцией Arz Market)"
+        "description": "Скрипт, позволяющий искать товар по лавкам ViceCity\n(по аналогии с функцией Arz Market)",
+        "label":""
     },
     "PhoneNotifier": {
         "release_date": "08.05.2025",
@@ -69,7 +77,8 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/PhoneNotifier/PhoneNotifier.lua?raw=true",
         "main_cmd": "/pn",
-        "description": "Скрипт, уведомляющий в Telegram о входящих звонках и СМС"
+        "description": "Скрипт, уведомляющий в Telegram о входящих звонках и СМС",
+        "label":""
     },
     "PropertyChecker": {
         "release_date": "08.05.2025",
@@ -77,7 +86,8 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/PropertyChecker/PropertyChecker.lua?raw=true",
         "main_cmd": "/checkp",
-        "description": "Скрипт, позволяющий в игре узнать о домах/бизнесах игрока.\nОсновной код взят от {36C500}Read1dno{FFFFFF}. Переписан на mimgui и доработан {36C500}romanespit{FFFFFF}."
+        "description": "Скрипт, позволяющий в игре узнать о домах/бизнесах игрока.\nОсновной код взят от {36C500}Read1dno{FFFFFF}. Переписан на mimgui и доработан {36C500}romanespit{FFFFFF}.",
+        "label":""
     },
     "RouletteOpener": {
         "release_date": "10.05.2025",
@@ -85,7 +95,8 @@
         "version": "1.5.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/RouletteOpener/RouletteOpener.lua?raw=true",
         "main_cmd": "/ro",
-        "description": "Скрипт, ускоряющий и автоматизирующий открытие рулеток\n(бронзовых, серебряных, золотых, платиновых)"
+        "description": "Скрипт, ускоряющий и автоматизирующий открытие рулеток\n(бронзовых, серебряных, золотых, платиновых)",
+        "label":""
     },
     "arizona-hungry-run": {
         "release_date": "04.05.2025",
@@ -93,7 +104,8 @@
         "version": "1.0.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/arizona-hungry-run.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Скрипт, позволяющий бегать быстро, даже если у голод персонажа менее 20 единиц.\n{FF0000}Если нет улучшения Premium VIP на быстрый бег с менее 20 голода - ЯВЛЯЕТСЯ ЧИТОМ"
+        "description": "Скрипт, позволяющий бегать быстро, даже если у голод персонажа менее 20 единиц.\n{FF0000}Если нет улучшения Premium VIP на быстрый бег с менее 20 голода - ЯВЛЯЕТСЯ ЧИТОМ",
+        "label":""
     },
     "ArizonaAntiTDLag": {
         "release_date": "Неизвестно",
@@ -101,7 +113,8 @@
         "version": "1.0.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/ArizonaAntiTDLag.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Оптимизация текстдравов инвентаря"
+        "description": "Оптимизация текстдравов инвентаря",
+        "label":""
     },
     "Fix3dTexts": {
         "release_date": "05.05.2025",
@@ -109,7 +122,8 @@
         "version": "1.0.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/Fix3dTexts.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Скрипт, исправляющий работу многих скриптов, работающих с 3D текстами"
+        "description": "Скрипт, исправляющий работу многих скриптов, работающих с 3D текстами",
+        "label":""
     },
     "FuckBanner": {
         "release_date": "10.05.2025",
@@ -117,7 +131,8 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/FuckBanner.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Убирает назойливый баннер/календарь ивента при входе в игру"
+        "description": "Убирает назойливый баннер/календарь ивента при входе в игру",
+        "label":""
     },
     "LavkaNespit": {
         "release_date": "08.05.2025",
@@ -125,6 +140,7 @@
         "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/LavkaNespit.lua?raw=true",
         "main_cmd": "/rlavka",
-        "description": "Скрипт, отрисовывающий круги вокруг лавок, чтобы фармилы могли тыкнуть свою лавку\nДля того, чтобы найти свою лавку, введите {36C500}/mylavka"
+        "description": "Скрипт, отрисовывающий круги вокруг лавок, чтобы фармилы могли тыкнуть свою лавку\nДля того, чтобы найти свою лавку, введите {36C500}/mylavka",
+        "label":""
     }
 }

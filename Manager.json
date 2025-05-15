@@ -29,7 +29,7 @@
     "AutoBizTaxes": {
         "release_date": "15.05.2025",
         "author": "romanespit",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/AutoBizTaxes/AutoBizTaxes.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
         "description": "Скрипт позволяющий автоматически делать {FFFF00}квест в налоговой для бизнесов.\n{FFFF00}Встал на пикап, прожал альтуху, скрипт все сделал сам.",

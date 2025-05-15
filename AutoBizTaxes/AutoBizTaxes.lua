@@ -1,6 +1,6 @@
 script_author("romanespit")
 script_name("AutoBizTaxesQuest")
-script_version("1.1.0")
+script_version("1.2.0")
 local dialogprocess = false
 function onSendPacket(id, bs)
     if id == 220 then
@@ -15,11 +15,8 @@ function onSendPacket(id, bs)
                 end)
             end
             if text == "onActiveViewChanged|NpcDialog" and dialogprocess then
-                lua_thread.create(function()
-                    wait(250)
-                    cefSend("answer.npcDialog|1")
-                    dialogprocess = false
-                end)
+                cefSend("answer.npcDialog|1")
+                dialogprocess = false
             end
         end
     end
@@ -32,7 +29,7 @@ function onReceivePacket(id, bs)
             local length = raknetBitStreamReadInt16(bs)
             local encoded = raknetBitStreamReadInt8(bs)
             local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
-            if text:find("event.npcDialog.initializeDialog") and text:find("Вы хотите провести бухгалтерский учёт") then
+            if text:find("event.npcDialog.initializeDialog") then
                 if text:find("Вы хотите провести бухгалтерский учёт") 
                 or text:find("Вы хотите выполнить задания для бизнеса") then dialogprocess = true end
             end

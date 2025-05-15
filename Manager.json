@@ -26,6 +26,15 @@
         "description": "Скрипт автоматически заправляет на заправках авто\nФикс скрипта JustFedot - {FFFF00}[JF] AutoFill\n\n{4682B4}Rest in peace, legend!",
         "label":"Новый скрипт"
     },
+    "AutoBizTaxes": {
+        "release_date": "15.05.2025",
+        "author": "romanespit",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/AutoBizTaxes/AutoBizTaxes.lua?raw=true",
+        "main_cmd": "Отсутствует, активация автоматическая",
+        "description": "Скрипт позволяющий автоматически делать\nквест в налоговой для бизнесов.\nВстал на пикап, прожал альтуху, скрипт все сделал сам.",
+        "label":"Новый скрипт"
+    },
     "CaseOpener": {
         "release_date": "10.05.2025",
         "author": "romanespit",

@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Fast Podsel")
-script_version("1.3.0")
+script_version("1.3.1")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "FastPodsel"
@@ -284,7 +284,7 @@ end
 
 
 function hook.onShowDialog(id, style, title, button1, button2, text)
-    if id == 7238 and PodselProcess then
+    if id == 7238 and PodselProcess then -- Выбор дома
         local count = 0
         local found = false
         for line in text:gmatch('[^\r\n]+') do
@@ -300,18 +300,18 @@ function hook.onShowDialog(id, style, title, button1, button2, text)
             return false
         end
     end
-    if id == 174 and PodselProcess then sampSendDialogResponse(id, 1, 8) end
-    if id == 27129 and PodselProcess then
+    if id == 174 and PodselProcess then sampSendDialogResponse(id, 1, 8) end -- Выбор подселения в меню дома
+    if id == 27131 and PodselProcess then -- Выбор платно или бесплатно подселить
         if not imFreePodsel[0] then sampSendDialogResponse(id, 1, 1)
         else sampSendDialogResponse(id, 1, 0) end
     end
-    if id == 198 and PodselProcess then 
+    if id == 198 and PodselProcess then -- Ввод данных 
         if not imFreePodsel[0] then sampSendDialogResponse(id, 1, 0, PodselForm)
         else sampSendDialogResponse(id, 1, 0, tostring(PodselID)) end 
         sampCloseCurrentDialogWithButton(0)
         return false
     end
-    if id == 27130 and PodselProcess then 
+    if id == 27132 and PodselProcess then -- Подтверждение
         sampSendDialogResponse(id, 1, 0)
 		sampCloseCurrentDialogWithButton(0)
         
@@ -333,6 +333,11 @@ function hook.onServerMessage(color, text)
     end
     if text:find("У игрока нет доступных слотов для аренды комнаты") then 
         sampSendChat("/b @"..sampGetPlayerNickname(PodselID)..", у вас не хватает слотов для подселения! /mn > 1 > 6")
+        PodselProcess = false
+        return false
+    end
+    if text:find("Игрок уже подселён в этом доме") then
+        sampSendChat("/b @"..sampGetPlayerNickname(PodselID)..", вы уже заселены в этот дом")
         PodselProcess = false
         return false
     end

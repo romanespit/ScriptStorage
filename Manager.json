@@ -99,9 +99,9 @@
         "label":""
     },
     "RouletteOpener": {
-        "release_date": "10.05.2025",
+        "release_date": "23.05.2025",
         "author": "romanespit",
-        "version": "1.5.0",
+        "version": "1.5.1",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/RouletteOpener/RouletteOpener.lua?raw=true",
         "main_cmd": "/ro",
         "description": "—крипт, ускор€ющий и автоматизирующий открытие рулеток\n(бронзовых, серебр€ных, золотых, платиновых)",

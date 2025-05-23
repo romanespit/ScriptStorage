@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Roulette Opener")
-script_version("1.5.0")
+script_version("1.5.1")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "RouletteOpener"
@@ -287,10 +287,12 @@ end
 function hook.onShowDialog(id, style, title, button1, button2, text)
     if id == 0 and text:find("Поздравляем с получением") then 
         local prize,count = text:match("Поздравляем с получением: {......}(.+) %((%d+) шт%){......}")
-        AddDrop(prize,count)
-        sampSendDialogResponse(id, 1, 0, nil)
-        sampCloseCurrentDialogWithButton(0)
-        return false
+        if prize ~= nil and count ~= nil then
+            AddDrop(prize,count)
+            sampSendDialogResponse(id, 1, 0, nil)
+            sampCloseCurrentDialogWithButton(0)
+            return false
+        end
     end
 end
 function hook.onServerMessage(color,text)

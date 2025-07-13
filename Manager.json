@@ -8,6 +8,15 @@
         "description": "Менеджер скриптов от автора {FFFF00}romanespit\n{FFFFFF}Позволяет управлять скриптами разработки автора: Установка, Обновление, Удаление, Перезагрузка",
         "label":""
     },
+    "AntiCarLoss": {
+        "release_date": "13.07.2025",
+        "author": "БеzликиЙ",
+        "version": "1.0.0",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/AntiCarLoss.lua?raw=true",
+        "main_cmd": "Отсутствует, активация автоматическая",
+        "description": "Нопает функцию опкода 01c3 (markCarAsNoLongerNeeded), \nчтобы авто при выходе из него визуально не пропадало",
+        "label":"Новый скрипт"
+    },
     "BodyCam": {
         "release_date": "08.05.2025",
         "author": "romanespit",

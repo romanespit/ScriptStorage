@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Fast Podsel")
-script_version("1.3.1")
+script_version("1.3.2")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "FastPodsel"
@@ -301,7 +301,7 @@ function hook.onShowDialog(id, style, title, button1, button2, text)
         end
     end
     if id == 174 and PodselProcess then sampSendDialogResponse(id, 1, 8) end -- Выбор подселения в меню дома
-    if id == 27131 and PodselProcess then -- Выбор платно или бесплатно подселить
+    if id == 27129 and PodselProcess then -- Выбор платно или бесплатно подселить
         if not imFreePodsel[0] then sampSendDialogResponse(id, 1, 1)
         else sampSendDialogResponse(id, 1, 0) end
     end

@@ -15,7 +15,7 @@
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/AntiCarLoss.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
         "description": "Нопает функцию опкода 01c3 (markCarAsNoLongerNeeded), \nчтобы авто при выходе из него визуально не пропадало",
-        "label":"Новый скрипт"
+        "label":""
     },
     "BodyCam": {
         "release_date": "08.05.2025",
@@ -42,7 +42,7 @@
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/AutoBizTaxes/AutoBizTaxes.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
         "description": "Скрипт позволяющий автоматически делать {FFFF00}квест в налоговой для бизнесов.\n{FFFF00}Встал на пикап, прожал альтуху, скрипт все сделал сам.",
-        "label":"Обновлен"
+        "label":""
     },
     "CaseOpener": {
         "release_date": "10.05.2025",
@@ -54,13 +54,13 @@
         "label":""
     },
     "EmojiHelper": {
-        "release_date": "08.05.2025",
+        "release_date": "25.07.2025",
         "author": "romanespit",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/EmojiHelper/EmojiHelper.lua?raw=true",
-        "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. \nРаботает, как в командах, так и в обычном чате.\nИспользуйте конструкцию {e:text}",
-        "label":""
+        "main_cmd": "/ehelp, /elist",
+        "description": "Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. \nРаботает, как в командах, так и в обычном чате.\nИспользуйте конструкцию {e:text}\nТакже показывает некоторые скрытые эмодзи чата Аризоны",
+        "label":"Обновлен"
     },
     "FastPodsel": {
         "release_date": "15.07.2025",
@@ -69,7 +69,7 @@
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastPodsel/FastPodsel.lua?raw=true",
         "main_cmd": "/podsel",
         "description": "Скрипт, упрощающий подселение и позволяющий быстро отправить предложение.\nПри вводе общей суммы и изменении срока - калькулироваться будет\nпочасовая и наоборот.",
-        "label":"Фикс"
+        "label":""
     },
     "FastReport": {
         "release_date": "08.05.2025",

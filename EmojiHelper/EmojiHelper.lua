@@ -4,7 +4,7 @@ SAMP.lua - https://www.blast.hk/threads/14624/
 ------------------------ Main Variables
 script_author("romanespit ([07]Con_Serve)")
 script_name("Emoji Helper")
-script_version("1.2.0")
+script_version("1.2.1")
 local scr = thisScript()
 SCRIPT_SHORTNAME = "EmojiHelper"
 MAIN_CMD = "ehelp"
@@ -36,7 +36,7 @@ end
 local family = {"20a","20b","20c","20d","20e","20f","200","201","202","203","204","205","206","207","208","209","21a","21b","21c","21d","21e","21f","210","211","212","213","214","215","216","217","218","219", "220","221","222","223","224","225","226","227"}
 local prem = {"250", "251", "252", "253", "254", "255", "256", "257", "258", "259"}
 local guns = {"30a","30b","30c","30d","30e","30f","300","301","302","303","304","305","306","307","308","309","31a","31b","31c","31d","31e","31f","310","311","312","313","314","315","316","317","318","319","32a","32b","32c","32d","32e","32f","320","321","322","323","324","325","326","327","329","330","331","332"}
-local unknown = {"uf25b","u1fc1e","bk","bh","sell","trade","rent","buy","lavka123"}
+local unknown = {"uf25b","u1fc1e","sell","trade","rent","buy","lavka123"}
 function RegisterScriptCommands()
     sampRegisterChatCommand(MAIN_CMD, function() sms("Список скрытых эмодзи: "..COLOR_YES.."/elist") sms("Используйте в командах/чате структуру "..COLOR_YES.."{e:text 123}") sms("{e:text 123} {e:jopa} => "..Modify("{e:text 123}").." "..Modify("{e:jopa}")) end) -- Главное окно скрипта
     

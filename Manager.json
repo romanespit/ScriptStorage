@@ -1,8 +1,8 @@
 {
     "NespitManager": {
-        "release_date": "25.07.2025",
+        "release_date": "27.07.2025",
         "author": "romanespit",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/NespitManager/NespitManager.luac?raw=true",
         "main_cmd": "/nm",
         "description": "Менеджер скриптов от автора {FFFF00}romanespit\n{FFFFFF}Позволяет управлять скриптами разработки автора: Установка, Обновление, Удаление, Перезагрузка",
@@ -54,9 +54,9 @@
         "label":""
     },
     "EmojiHelper": {
-        "release_date": "25.07.2025",
+        "release_date": "27.07.2025",
         "author": "romanespit",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/EmojiHelper/EmojiHelper.lua?raw=true",
         "main_cmd": "/ehelp, /elist",
         "description": "Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. \nРаботает, как в командах, так и в обычном чате.\nИспользуйте конструкцию {e:text}\nТакже показывает некоторые скрытые эмодзи чата Аризоны",

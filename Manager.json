@@ -53,6 +53,15 @@
         "description": "Скрипт, автоматически открывающий кейсы в инвентаре.\nТакже ведёт статистику дропа за сессию (без сохранения) с возможностю сохранения цен. \n{FF0000}Не работает на некоторых ларцах (Arizona, Мусорщика и им подобные)",
         "label":""
     },
+    "CraftHelperCEF": {
+        "release_date": "05.08.2025",
+        "author": "romanespit",
+        "version": "1.0.1",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/CraftHelperCEF/CraftHelperCEF.lua?raw=true",
+        "main_cmd": "/acr, /crstats",
+        "description": "Скрипт, автоматически крафтящий предметы на CEF.\nТакже ведёт статистику крафтов, можно посмотреть - /crstats. \nИспользование:\n1. Открыть нужный предмет\n2. Ввести /acr или /acr [количество]\n3. Идти пить чай",
+        "label":"Новый скрипт"
+    },
     "EmojiHelper": {
         "release_date": "27.07.2025",
         "author": "romanespit",
@@ -60,16 +69,16 @@
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/EmojiHelper/EmojiHelper.lua?raw=true",
         "main_cmd": "/ehelp, /elist",
         "description": "Скрипт, позволяющий заменять текст на эмодзи для чата Arizona. \nРаботает, как в командах, так и в обычном чате.\nИспользуйте конструкцию {e:text}\nТакже показывает некоторые скрытые эмодзи чата Аризоны",
-        "label":"Обновлен"
+        "label":""
     },
     "FastPodsel": {
-        "release_date": "15.07.2025",
+        "release_date": "05.08.2025",
         "author": "romanespit",
-        "version": "1.3.2",
+        "version": "1.3.3",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastPodsel/FastPodsel.lua?raw=true",
         "main_cmd": "/podsel",
         "description": "Скрипт, упрощающий подселение и позволяющий быстро отправить предложение.\nПри вводе общей суммы и изменении срока - калькулироваться будет\nпочасовая и наоборот.",
-        "label":""
+        "label":"Обновлен"
     },
     "FastReport": {
         "release_date": "08.05.2025",

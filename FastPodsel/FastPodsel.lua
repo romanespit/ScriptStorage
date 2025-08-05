@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Fast Podsel")
-script_version("1.3.2")
+script_version("1.3.3")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
 SCRIPT_SHORTNAME = "FastPodsel"
@@ -301,17 +301,17 @@ function hook.onShowDialog(id, style, title, button1, button2, text)
         end
     end
     if id == 174 and PodselProcess then sampSendDialogResponse(id, 1, 8) end -- Выбор подселения в меню дома
-    if id == 27129 and PodselProcess then -- Выбор платно или бесплатно подселить
+    if title:find("Подселение жильца") and text:find("Подселить без оплаты") and text:find("Подселить с оплатой") and PodselProcess then -- Выбор платно или бесплатно подселить 27129
         if not imFreePodsel[0] then sampSendDialogResponse(id, 1, 1)
         else sampSendDialogResponse(id, 1, 0) end
     end
-    if id == 198 and PodselProcess then -- Ввод данных 
+    if title:find("Подселение жильца") and text:find("которого хотите подселить к себе") and PodselProcess then -- Ввод данных 198
         if not imFreePodsel[0] then sampSendDialogResponse(id, 1, 0, PodselForm)
         else sampSendDialogResponse(id, 1, 0, tostring(PodselID)) end 
         sampCloseCurrentDialogWithButton(0)
         return false
     end
-    if id == 27132 and PodselProcess then -- Подтверждение
+    if title:find("Подселение жильца") and text:find("Вы действительно хотите подселить игрока") and PodselProcess then -- Подтверждение
         sampSendDialogResponse(id, 1, 0)
 		sampCloseCurrentDialogWithButton(0)
         

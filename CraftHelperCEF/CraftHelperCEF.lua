@@ -14,6 +14,7 @@ COLOR_WHITE = "{FFFFFF}"
 SCRIPT_PREFIX = COLOR_MAIN.."[ "..SCRIPT_SHORTNAME.." ]{FFFFFF}: "
 -- Emojis
 EDBG = ":u1f6e0:"
+EOK = ":true:"
 EERR = ":no_entry:"
 EINFO = ":question:"
 ------------------------ 

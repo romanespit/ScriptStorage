@@ -1,8 +1,8 @@
 {
     "NespitManager": {
-        "release_date": "27.07.2025",
+        "release_date": "11.09.2025",
         "author": "romanespit",
-        "version": "1.2.2",
+        "version": "1.2.3",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/NespitManager/NespitManager.luac?raw=true",
         "main_cmd": "/nm",
         "description": "Менеджер скриптов от автора {FFFF00}romanespit\n{FFFFFF}Позволяет управлять скриптами разработки автора: Установка, Обновление, Удаление, Перезагрузка",
@@ -54,9 +54,9 @@
         "label":""
     },
     "CraftHelperCEF": {
-        "release_date": "05.08.2025",
+        "release_date": "11.09.2025",
         "author": "romanespit",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/CraftHelperCEF/CraftHelperCEF.lua?raw=true",
         "main_cmd": "/acr, /crstats",
         "description": "Скрипт, автоматически крафтящий предметы на CEF.\nТакже ведёт статистику крафтов, можно посмотреть - /crstats. \nИспользование:\n1. Открыть нужный предмет\n2. Ввести /acr или /acr [количество]\n3. Идти пить чай",
@@ -89,15 +89,6 @@
         "description": "Скрипт, позволяющий отправить быстрый репорт по команде {36C500}/rep text",
         "label":""
     },
-    "FindGoodsVC": {
-        "release_date": "08.05.2025",
-        "author": "romanespit",
-        "version": "1.1.0",
-        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FindGoodsVC/FindGoodsVC.luac?raw=true",
-        "main_cmd": "/fg",
-        "description": "Скрипт, позволяющий искать товар по лавкам ViceCity\n(по аналогии с функцией Arz Market)",
-        "label":""
-    },
     "PhoneNotifier": {
         "release_date": "08.05.2025",
         "author": "romanespit",
@@ -125,24 +116,6 @@
         "description": "Скрипт, ускоряющий и автоматизирующий открытие рулеток\n(бронзовых, серебряных, золотых, платиновых)",
         "label":""
     },
-    "arizona-hungry-run": {
-        "release_date": "04.05.2025",
-        "author": "wojciech?",
-        "version": "1.0.0",
-        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/arizona-hungry-run.lua?raw=true",
-        "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Скрипт, позволяющий бегать быстро, даже если у голод персонажа менее 20 единиц.\n{FF0000}Если нет улучшения Premium VIP на быстрый бег с менее 20 голода - ЯВЛЯЕТСЯ ЧИТОМ",
-        "label":""
-    },
-    "ArizonaAntiTDLag": {
-        "release_date": "Неизвестно",
-        "author": "Freym",
-        "version": "1.0.0",
-        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/ArizonaAntiTDLag.lua?raw=true",
-        "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Оптимизация текстдравов инвентаря",
-        "label":""
-    },
     "Fix3dTexts": {
         "release_date": "05.05.2025",
         "author": "XRLM",
@@ -150,15 +123,6 @@
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/Fix3dTexts.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",
         "description": "Скрипт, исправляющий работу многих скриптов, работающих с 3D текстами",
-        "label":""
-    },
-    "FuckBanner": {
-        "release_date": "10.05.2025",
-        "author": "romanespit",
-        "version": "1.1.0",
-        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/FuckBanner.lua?raw=true",
-        "main_cmd": "Отсутствует, активация автоматическая",
-        "description": "Убирает назойливый баннер/календарь ивента при входе в игру",
         "label":""
     },
     "LavkaNespit": {

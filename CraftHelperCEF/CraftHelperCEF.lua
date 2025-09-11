@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Craft Helper")
-script_version("1.0.1")
+script_version("1.0.2")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version
 SCRIPT_SHORTNAME = "CraftHelper"
@@ -19,17 +19,10 @@ EERR = ":no_entry:"
 EINFO = ":question:"
 ------------------------ 
 local hook = require 'lib.samp.events'
-local encoding = require('encoding')
-encoding.default = 'cp1251'
-u8 = encoding.UTF8
---local faicons = require('fAwesome6')
-local dlstatus = require("moonloader").download_status
 local io = require("io")
-
 local json = require("cjson")
 local dirml = getWorkingDirectory() -- Директория moonloader
 local dirscr = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/"
-local reloaded = false
 local thread = lua_thread.create(function() return end)
 ------------------------ Another Variables
 local category = nil
@@ -47,14 +40,6 @@ end
 function Logger(text)
     print(COLOR_YES..text)
 end
---[[function FileLog(text)
-    local filepath = dirscr.."CraftLog.log"
-    local file = io.open(filepath, "a+")
-    if file then
-        file:write(u8('\n['..os.date("%c")..'] '..text:gsub('{......}','')))
-        file:close()
-    end
-end]]
 function onSendPacket(id, bs)
     if id == 220 then
 		raknetBitStreamIgnoreBits(bs, 8)
@@ -92,7 +77,7 @@ function onReceivePacket(id, bs)
             local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
             if text:find("event.inventory.craft") then
                 local data = json.decode(text:match("`%[(.+)%]`"))
-                if data.action ~= nil and tonumber(data.action) == 2 and CraftProcess then
+                if data.action ~= nil and tonumber(data.action) == 2 and CraftProcess and NeedToCraft ~= 0 then
                     if thread:status() == "dead" then
                         thread = lua_thread.create(function() 
                             wait(2000)
@@ -114,29 +99,6 @@ function cefSend(text)
 	raknetSendBitStreamEx(bs, 1, 7, 1)
 	raknetDeleteBitStream(bs)
 end
---[[function CheckAndDownloadFiles()
-    needLoad = 0
-    NeedToLoad = {}
-    if not doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then table.insert(NeedToLoad, {'https://github.com/romanespit/ScriptStorage/blob/main/extraFiles/EagleSans-Regular.ttf?raw=true',dirml..'/rmnsptScripts/EagleSans-Regular.ttf'}) needLoad = needLoad+1 end
-    if needLoad ~= 0 then
-        Logger("Требуется загрузка "..needLoad.." файлов. Начинаю скачивание...")
-        for k,v in ipairs(NeedToLoad) do
-            downloadUrlToFile(v[1], v[2], function(id, status, p1, p2)
-                if status == dlstatus.STATUS_ENDDOWNLOADDATA then
-                    lua_thread.create(function()
-                        wait(1000)
-                        if doesFileExist(v[2]) then
-                            Logger("Успешная загрузка файла "..v[2]:match(".+(rmnsptScripts/.+)"))
-                            needLoad = needLoad-1
-                        end
-                    end)
-                end
-            end)
-        end
-    end
-    repeat wait(100) until needLoad == 0
-    if #NeedToLoad > 0 then sms("Загрузки необходимых файлов завершены. Перезагружаемся...") reloaded = true scr:reload() end
-end]]
 ------------------------ Script Directories
 if not doesDirectoryExist(dirml.."/rmnsptScripts/") then
     createDirectory(dirml.."/rmnsptScripts/") 
@@ -148,7 +110,7 @@ if not doesDirectoryExist(dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."/") then
 end
 ------------------------ JSON Config
 local Stats = {
-    ["Аптечка"] = {Chance = 100, Crafted = 0, Attempts = 0}
+    ["Аптечка"] = {Chance = 100, Crafted = 1, Attempts = 1}
 }
 function LoadItems()
     local filepath = dirscr.."Items.json"
@@ -172,28 +134,6 @@ function SaveItems()
         Logger("Ошибка сохранения файла с предметами")
     end
 end
---[[function SaveCFG()
-    local filepath = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."-settings.json"
-    local file = io.open(filepath, "w")
-    if file then
-        file:write(json.encode(config))
-        file:close()
-    else
-        Logger("Ошибка сохранения файла настроек")
-    end
-end
-function LoadCFG()
-    local filepath = dirml.."/rmnsptScripts/"..SCRIPT_SHORTNAME.."-settings.json"
-    local file = io.open(filepath, "r")
-    if file then
-        local content = file:read("*a")
-        file:close()
-        config = json.decode(content)
-    else
-        Logger("Ошибка чтения файла настроек! Создаём...")
-        SaveCFG()
-    end
-end]]
 do -- Custom string's methods
 	local mt = getmetatable("")
 	local lower = string.lower
@@ -214,10 +154,9 @@ do -- Custom string's methods
 		return result
 	end
 end
---LoadCFG() -- Загрузка настроек
 ------------------------ 
 function onScriptTerminate(scr, is_quit)
-	if scr == thisScript() and not is_quit and not reloaded then
+	if scr == thisScript() and not is_quit then
         tech_sms(EERR.."Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
 	end
 end
@@ -236,9 +175,9 @@ function RegisterScriptCommands()
                 if thread:status() == "dead" then
                     thread = lua_thread.create(function()
                         LastCraftTime = os.clock()
-                        cefSend('updateCount|{"category": '..category..', "index": '..item..', "count": 2}')
+                        cefSend('startCraft|{"amount": 1, "category": '..category..', "color":0, "index": '..item..', "count": 1}')
                         wait(300)
-                        cefSend('startCraft|{"amount": 10, "category": '..category..', "color":0, "index": '..item..', "count": 2}')
+                        cefSend('updateCount|{"category": '..category..', "index": '..item..', "count": 2}')
                     end)                
                 end
                 sms(EOK.."Автокрафт запущен. Категория №"..tonumber(category)+1 ..", Предмет №"..tonumber(item)+1 ..(NeedToCraft > -1 and ", Количество: "..tonumber(par) or ""))
@@ -255,7 +194,6 @@ function RegisterScriptCommands()
 		if string.find(arg, "^[%s%c]*$") then
 			return sms(EDBG.."Используйте: "..COLOR_YES.."/crstats [Название предмета]")
 		end
-
 		local results = {}
 		arg = string.lower(arg)
 		for item, v in pairs(Stats) do
@@ -268,7 +206,6 @@ function RegisterScriptCommands()
 				})
 			end
 		end
-
 		if #results == 0 then
 			sms(EERR.."Предмета с таким названием в ваших крафтах не найдено")
 		else
@@ -287,7 +224,6 @@ end
 function main()
 	while not isSampAvailable() do wait(0) end
 	repeat wait(100) until sampIsLocalPlayerSpawned()
-    --CheckAndDownloadFiles()
     RegisterScriptCommands() -- Регистрация объявленных команд скрипта
 	tech_sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}, "..COLOR_MAIN.."/crstats{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     LoadItems()
@@ -315,7 +251,7 @@ function hook.onSendSpawn()
 	myNick = sampGetPlayerNickname(myid)
 end
 function hook.onServerMessage(color, text)
-    if text:find("Вы успешно создали предмет '(.-)' %(шанс изготовления (%d+) процент%(ов%)%)") then
+    if text:find("^Вы успешно создали предмет '(.-)' %(шанс изготовления (%d+) процент%(ов%)%)") then
         local name,proc = text:match("Вы успешно создали предмет '(.-)' %(шанс изготовления (%d+) процент%(ов%)%)")
         if Stats[name] == nil then
             Stats[name] = {Chance = proc, Crafted = 1, Attempts = 1}
@@ -338,7 +274,7 @@ function hook.onServerMessage(color, text)
         end
         return false
     end
-    if text:find("Создание предмета '(.-)' не удалось %(шанс изготовления (%d+) процент%(ов%)%)") then
+    if text:find("^Создание предмета '(.-)' не удалось %(шанс изготовления (%d+) процент%(ов%)%)") then
         local name,proc = text:match("Создание предмета '(.-)' не удалось %(шанс изготовления (%d+) процент%(ов%)%)")
         if Stats[name] == nil then
             Stats[name] = {Chance = proc, Crafted = 0, Attempts = 1}
@@ -373,6 +309,14 @@ function hook.onServerMessage(color, text)
         CraftProcess = false
         NeedToCraft = -1
         sms(EERR.."Автокрафт остановлен, так как у вас недостаточно ресурсов или возможно предмет в аренде")
+        SaveItems()
+        return false
+    end
+    if text:find("%[Ошибка%] {......}Для начала крафта вам требуется как минимум 1 свободное место") then  
+        cefSend("stopCraft")
+        CraftProcess = false
+        NeedToCraft = -1
+        sms(EERR.."Автокрафт остановлен, так как у вас недостаточно свободных слотов в инвентаре")
         SaveItems()
         return false
     end

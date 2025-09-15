@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Craft Helper")
-script_version("1.0.2")
+script_version("1.0.3")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version
 SCRIPT_SHORTNAME = "CraftHelper"
@@ -296,6 +296,12 @@ function hook.onServerMessage(color, text)
         end
         return false
     end
+    if text:find("^%[Информация%] {......}Ваш скилл крафтера увеличен на (%d+) %((%d+)%). Чем больше ваш скил, тем дешевле стоит крафт") then
+        local plus,skill = text:match("^%[Информация%] {......}Ваш скилл крафтера увеличен на (%d+) %((%d+)%). Чем больше ваш скил, тем дешевле стоит крафт")
+        sms(EDBG.."Ваш скилл крафтера: "..COLOR_YES..skill.."{ffffff} ("..COLOR_YES.."+"..plus.."{ffffff})")
+        return false
+    end
+    -- [Информация] {FFFFFF}Ваш скилл крафтера увеличен на 10 (66867). Чем больше ваш скил, тем дешевле стоит крафт!
     if text:find("Вы прервали процесс создания предмета") and CraftProcess then 
         cefSend("stopCraft")
         CraftProcess = false

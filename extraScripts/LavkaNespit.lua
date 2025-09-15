@@ -2,7 +2,7 @@
 
 script_author("romanespit")
 script_name("Lavka Nespit")
-script_version("1.1.0")
+script_version("1.1.2")
 local active = false
 local mylavka = 0
 font = renderCreateFont("Trebuchet MS", 12, 5)
@@ -23,8 +23,9 @@ main = function()
 					if getDistanceBetweenCoords3d(x,y,z,posX,posY,posZ) < 35 then
 						if text:find("Управления товарами") and not isCentralMarket(posX, posY) then
 							circleColor = 0xFFFFFFFF
-							if getDistanceBetweenCoords3d(x,y,z,posX,posY,posZ) < 5 then canPlaceMarket = false circleColor = 0xFFFF0000 end					
-							drawCircleIn3d(posX,posY,posZ-1.3,5,36,1.5,circleColor)
+							width = 0.5
+							if getDistanceBetweenCoords3d(x,y,z,posX,posY,posZ) < 5 then canPlaceMarket = false circleColor = 0xFFFF0000 width = 7 end					
+							drawCircleIn3d(posX,posY,posZ-1.3,5,36,width,circleColor)
 						elseif text:find("Номер бизнеса") then
 							circleColor = 0xFF0000FF		
 							if getDistanceBetweenCoords3d(x,y,z,posX,posY,posZ) < 25 then canPlaceMarket = false circleColor = 0xFFFF0000 end
@@ -40,7 +41,7 @@ main = function()
 			if isCentralMarket(x, y) then canPlaceMarket = false end
 			if canPlaceMarket then renderFontDrawText(font, "Можно поставить лавку [Q]", userscreenX/3 + 30, (userscreenY - 60), 0xFF228B22)
 			else renderFontDrawText(font, "Нельзя поставить лавку", userscreenX/3 + 30, (userscreenY - 60), 0xFFFF0000) end
-			if isKeyJustPressed(keys.VK_Q) then
+			if isKeyJustPressed(keys.VK_Q) and not sampIsChatInputActive() then
 				sampSendChat("/lavka")
 			end
 	    end
@@ -75,5 +76,5 @@ function hook.onCreate3DText(id,color,position,distance,testLOS,attachedPlayerId
     sampCreate3dTextEx(id, textt, color, position.x, position.y, position.z, distance, testLOS, attachedPlayerId, attachedVehicleId)
 end
 function hook.onRemove3DTextLabel(id)
-    sampDestroy3dText(textLabelId)
+    sampDestroy3dText(id)
 end

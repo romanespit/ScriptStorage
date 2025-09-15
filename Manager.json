@@ -54,13 +54,13 @@
         "label":""
     },
     "CraftHelperCEF": {
-        "release_date": "11.09.2025",
+        "release_date": "15.09.2025",
         "author": "romanespit",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/CraftHelperCEF/CraftHelperCEF.lua?raw=true",
         "main_cmd": "/acr, /crstats",
         "description": "Скрипт, автоматически крафтящий предметы на CEF.\nТакже ведёт статистику крафтов, можно посмотреть - /crstats. \nИспользование:\n1. Открыть нужный предмет\n2. Ввести /acr или /acr [количество]\n3. Идти пить чай",
-        "label":"Новый скрипт"
+        "label":"Обновлен"
     },
     "EmojiHelper": {
         "release_date": "27.07.2025",
@@ -78,7 +78,7 @@
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/FastPodsel/FastPodsel.lua?raw=true",
         "main_cmd": "/podsel",
         "description": "Скрипт, упрощающий подселение и позволяющий быстро отправить предложение.\nПри вводе общей суммы и изменении срока - калькулироваться будет\nпочасовая и наоборот.",
-        "label":"Обновлен"
+        "label":""
     },
     "FastReport": {
         "release_date": "08.05.2025",
@@ -126,12 +126,12 @@
         "label":""
     },
     "LavkaNespit": {
-        "release_date": "08.05.2025",
+        "release_date": "15.09.2025",
         "author": "romanespit",
-        "version": "1.1.0",
+        "version": "1.1.2",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/LavkaNespit.lua?raw=true",
         "main_cmd": "/rlavka",
         "description": "Скрипт, отрисовывающий круги вокруг лавок, чтобы фармилы могли тыкнуть свою лавку\nДля того, чтобы найти свою лавку, введите {36C500}/mylavka",
-        "label":""
+        "label":"Обновлен"
     }
 }

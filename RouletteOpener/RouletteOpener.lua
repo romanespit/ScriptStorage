@@ -1,9 +1,9 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Roulette Opener")
-script_version("1.5.1")
+script_version("1.5.2")
 local scr = thisScript()
-local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
+local SCRIPT_TITLE = scr.name.." v"..scr.version
 SCRIPT_SHORTNAME = "RouletteOpener"
 MAIN_CMD = "ro"
 COLOR_MAIN = "{A60FAA}"
@@ -115,7 +115,7 @@ end
 ------------------------ Default Config
 
 local cfg = {
-    Turned = true,
+    --Turned = true,
     HasCompass = false,
     Timer = 15
 }
@@ -177,7 +177,7 @@ end
 local new, str = imgui.new, ffi.string
 local WinState = new.bool()
 local PriceState = new.bool()
-local Turned = new.bool(cfg.Turned)
+--local Turned = new.bool(cfg.Turned)
 local HasCompass = new.bool(cfg.HasCompass)
 local Timer = new.int(cfg.Timer)
 local imNeedToOpen = new.char[256](u8(tostring(NeedToOpen)))
@@ -225,11 +225,12 @@ function onReceivePacket(id, bs)
                 if started then
                     thread = lua_thread.create(function()
                         if cfg.HasCompass == true then 
-                            wait(700)                            
+                            wait(300)                            
                         else
                             wait(cfg.Timer*1000)
                         end                        
                         cefSend("crate.roulette.takePrize")
+                        wait(150) 
                         cefSend("crate.roulette.exit") 
                         if NeedToOpen > 0 then
                             NeedToOpen = NeedToOpen-1
@@ -312,42 +313,42 @@ imgui.OnInitialize(function()
     if doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then        
         imgui.GetIO().Fonts:Clear()
         imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 15, nil, glyph_ranges)
+        imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 14, config, iconRanges)
+
+        
+        MiddleFont = imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 18, nil, glyph_ranges)
+        imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 18, config, iconRanges)
     else Logger("Отсутствует файл EagleSans-Regular.ttf.") end
-    imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 10, config, iconRanges)
     MimStyle()
 end)
 ------------------------ MimGUI Frames
 imgui.OnFrame(function() return WinState[0] and not PriceState[0] end, -- Main Frame
     function(player)
         imgui.SetNextWindowPos(imgui.ImVec2(sx/3, 500), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-        imgui.Begin(faicons('gem').." "..u8(SCRIPT_TITLE), WinState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse)
-        if imgui.Checkbox(u8'Включить / Выключить скрипт', Turned) then
-            cfg.Turned = Turned[0]
-            SaveCFG()
-        end
-        if Turned[0] and not started and stage == "readytoopen" then
+        --imgui.Begin(faicons('gem').." "..u8(SCRIPT_TITLE), WinState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse)
+        imgui.Begin(faicons('gem').." "..u8(SCRIPT_TITLE), WinState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse+imgui.WindowFlags.NoTitleBar)
+        imgui.MainWindowHeader() 
+        if not started and stage == "readytoopen" then
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
             if imgui.Button(u8'Начать', imgui.ImVec2(200, 50)) then
                 started = true
                 cefSend("crate.roulette.open")
             end
-        elseif Turned[0] and started then
+        elseif started then
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
             if imgui.Button(u8'Остановить', imgui.ImVec2(200, 50)) then
                 started = false
                 if thread:status() ~= "dead" then thread:terminate() end
             end
-        elseif Turned[0] and stage ~= "readytoopen" and not started then
+        elseif stage ~= "readytoopen" and not started then
             imgui.TextColoredRGB(COLOR_YES.."Выберите в инвентаре рулетку")
             imgui.TextColoredRGB(COLOR_YES.."И нажмите на ней Использовать")
         end
-        if Turned[0] then
-            if imgui.InputText(u8"Сколько открыть", imNeedToOpen, 256) then if u8:decode(ffi.string(imNeedToOpen)) ~= "" then NeedToOpen = tonumber(u8:decode(ffi.string(imNeedToOpen))) else NeedToOpen = 0 end end
-            imgui.TextColoredRGB('Осталось открыть: '..COLOR_YES..(NeedToOpen ~= 0 and NeedToOpen or 'Пока не кончатся/остановится'))
-            if imgui.Checkbox(u8'У меня есть рулеточный компас', HasCompass) then
-                cfg.HasCompass = HasCompass[0]
-                SaveCFG()
-            end
+        if imgui.InputText(u8"Сколько открыть", imNeedToOpen, 256) then if u8:decode(ffi.string(imNeedToOpen)) ~= "" then NeedToOpen = tonumber(u8:decode(ffi.string(imNeedToOpen))) else NeedToOpen = 0 end end
+        imgui.TextColoredRGB('Осталось открыть: '..COLOR_YES..(NeedToOpen ~= 0 and NeedToOpen or 'Пока не кончатся/остановится'))
+        if imgui.Checkbox(u8'У меня есть рулеточный компас', HasCompass) then
+            cfg.HasCompass = HasCompass[0]
+            SaveCFG()
         end
         if not HasCompass[0] then
             if imgui.SliderInt(u8'Таймер открытия (сек)', Timer, 1, 15) then				
@@ -413,7 +414,7 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end, -- Main F
             end 
             
         end   
-        imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))
+        --imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))
         imgui.End()
     end
 )
@@ -528,6 +529,50 @@ function imgui.Link(link, text)
     local color = imgui.IsItemHovered() and col[1] or col[2]
     DL:AddText(p, color, text)
     DL:AddLine(imgui.ImVec2(p.x, p.y + tSize.y), imgui.ImVec2(p.x + tSize.x, p.y + tSize.y), color)
+end
+function imgui.MainWindowHeader()
+    imgui.SetCursorPosY(5)
+    imgui.SetCursorPosX(10)
+    if imgui.Button(faicons.BUG.."##reportbug", imgui.ImVec2(40, 25)) then print(shell32.ShellExecuteA(nil, 'open', "https://github.com/romanespit/ScriptStorage/blob/main/HOWTO-REPORT.md", nil, nil, 1)) end
+    if imgui.IsItemHovered() then
+        imgui.SetTooltip(u8"Сообщить о проблеме или предложить что-то новое")
+    end
+    imgui.SameLine()
+    imgui.SetCursorPosX(60)
+    if imgui.Button(faicons.GLOBE.."##siteurl", imgui.ImVec2(40, 25)) then print(shell32.ShellExecuteA(nil, 'open', "https://romanespit.ru/", nil, nil, 1)) end
+    if imgui.IsItemHovered() then
+        imgui.SetTooltip(u8"Перейти на сайт разработчика")
+    end
+    imgui.SameLine()
+    imgui.SetCursorPosY(4)
+    imgui.PushFont(MiddleFont)
+        imgui.CenterText(u8(SCRIPT_TITLE))  
+    imgui.PopFont()
+    imgui.SameLine()
+    
+    imgui.SetCursorPosY(5)
+    --[[imgui.SetCursorPosX(imgui.GetWindowWidth()-150)
+    if imgui.Button(faicons.ARROWS_ROTATE.."##updatescripts", imgui.ImVec2(40, 25)) then checkUpdates() sms(EOK.."Данные о скриптах обновлены") end
+    if imgui.IsItemHovered() then
+        imgui.SetTooltip(u8"Нажмите, чтобы обновить данные о скриптах")
+    end
+    imgui.SameLine()]]
+    imgui.SetCursorPosX(imgui.GetWindowWidth()-100)
+    if imgui.Button(faicons.ROTATE_RIGHT.."##reload", imgui.ImVec2(40, 25)) then reloaded = true scr:reload() end
+    if imgui.IsItemHovered() then
+        imgui.SetTooltip(u8"Нажмите, чтобы перезагрузить скрипт")
+    end
+    imgui.SameLine()
+    imgui.SetCursorPosX(imgui.GetWindowWidth()-50)
+    if imgui.Button(faicons.XMARK.."##closewindow", imgui.ImVec2(40, 25)) then WinState[0] = false end
+    imgui.Separator()
+end
+
+function imgui.CenterText(text)
+    local width = imgui.GetWindowWidth()
+    local calc = imgui.CalcTextSize(text)
+    imgui.SetCursorPosX( width / 2 - calc.x / 2 )
+    imgui.Text(text)
 end
 ------------------------ MimGUI Style
 function MimStyle()

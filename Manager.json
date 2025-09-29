@@ -45,13 +45,13 @@
         "label":""
     },
     "CaseOpener": {
-        "release_date": "10.05.2025",
+        "release_date": "29.09.2025",
         "author": "romanespit",
-        "version": "1.4.0",
+        "version": "1.5.1",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/CaseOpener/CaseOpener.lua?raw=true",
         "main_cmd": "/co",
-        "description": "Скрипт, автоматически открывающий кейсы в инвентаре.\nТакже ведёт статистику дропа за сессию (без сохранения) с возможностю сохранения цен. \n{FF0000}Не работает на некоторых ларцах (Arizona, Мусорщика и им подобные)",
-        "label":""
+        "description": "Скрипт, автоматически открывающий кейсы в инвентаре.\nТакже ведёт статистику дропа за сессию (без сохранения) с возможностю сохранения цен.",
+        "label":"Обновлен"
     },
     "CraftHelperCEF": {
         "release_date": "15.09.2025",
@@ -108,13 +108,13 @@
         "label":""
     },
     "RouletteOpener": {
-        "release_date": "23.05.2025",
+        "release_date": "29.09.2025",
         "author": "romanespit",
-        "version": "1.5.1",
+        "version": "1.5.2",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/RouletteOpener/RouletteOpener.lua?raw=true",
         "main_cmd": "/ro",
         "description": "Скрипт, ускоряющий и автоматизирующий открытие рулеток\n(бронзовых, серебряных, золотых, платиновых)",
-        "label":""
+        "label":"Обновлен"
     },
     "Fix3dTexts": {
         "release_date": "05.05.2025",

@@ -1,8 +1,8 @@
 script_author("romanespit")
 script_name("Case Opener")
-script_version("1.4.0")
+script_version("1.5.1")
 local scr = thisScript()
-local SCRIPT_TITLE = scr.name.." v"..scr.version.." © "..table.concat(scr.authors, ", ")
+local SCRIPT_TITLE = scr.name.." v"..scr.version
 ------------------------
 local hook = require 'lib.samp.events'
 local wm = require 'lib.windows.message'
@@ -179,37 +179,17 @@ local instructions = [[
 Для начала работы вам нужно открыть ваш инвентарь (клавиша I или Y)
 Затем нажмите кнопку Выбрать ячейку.
 После этого вы войдёте в режим выбора ячейки в инвентаре.
-Просто кликните на ячейку с интересующим ларцом, скрипт её запомнит.
+Просто кликните на ячейку с интересующим ларцом кнопкой ПКМ, скрипт её запомнит.
 После выбора ячейки нажмите Начать открытие или Выбрать заново
 Во время открытия не закрывайте инвентарь!
 ]]
 local instructionsText = new.char[1024](u8(instructions))
-
-local inventoryItem = { -- id td inv
-    2136,2137,2138,2139,2140,2141,2142,2143,2144,2145,2146,
-    2147,2148,2149,2150,2151,2152,2153,2154,2155,2156,2157,
-    2158,2159,2160,2161,2162,2163,2164,2165,2166,2167,2168,
-    2169,2170,2171,2172,2173,2174,2175,2176,2177,2178,2179,
-    2180,2181,2182,2183,2184,2185,2186,2187,2188,2189,2190,
-    2191,2192,2193,2194,2195,2196,2197,2198,2199,2200,2201,
-    2202,2203,2204,2205,2206,2207,2208,2209,2210,2211,2212
-}
-local button = { -- константы кнопок инвентаря
-    Close = 65535, -- 2112
-    Use = 2302,
-    Page = {2107,2108,2109,2110,2111}
-}
 local OpenCount = 0
 local DropStats = {}
 local TotalDropPrice = 0
 local PriceSetName = ""
-local actualPage = 1
-local LastClickedTD = 0
 local selectedItem = 0
-local selectedModel = 0
-local antiLagTimer = os.clock()
 local stage = "off" -- Этап работы скрипта
-local openStage = "off" -- Этап в процессе открытия
 function imgui.TextColoredRGB(string, max_float)
 	local style = imgui.GetStyle()
 	local colors = style.Colors
@@ -277,25 +257,25 @@ imgui.OnInitialize(function()
     if doesFileExist(dirml..'/rmnsptScripts/EagleSans-Regular.ttf') then        
         imgui.GetIO().Fonts:Clear()
         imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 15, nil, glyph_ranges)
+        imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 14, config, iconRanges)
+
+        
+        MiddleFont = imgui.GetIO().Fonts:AddFontFromFileTTF(u8(dirml..'/rmnsptScripts/EagleSans-Regular.ttf'), 18, nil, glyph_ranges)
+        imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 18, config, iconRanges)
     else Logger("Отсутствует файл EagleSans-Regular.ttf.") end
-    imgui.GetIO().Fonts:AddFontFromMemoryCompressedBase85TTF(faicons.get_font_data_base85('solid'), 10, config, iconRanges)
     MimStyle()
 end)
 imgui.OnFrame(function() return WinState[0] and not PriceState[0] end,
     function(player)
         imgui.SetNextWindowPos(imgui.ImVec2(sx/3, 500), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-        imgui.Begin(faicons('gem')..u8(" "..SCRIPT_TITLE), WinState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse)
+        --imgui.Begin(faicons('gem')..u8(" "..SCRIPT_TITLE), WinState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse)
+        imgui.Begin(faicons('gem').." "..u8(SCRIPT_TITLE), WinState, imgui.WindowFlags.AlwaysAutoResize+imgui.WindowFlags.NoCollapse+imgui.WindowFlags.NoTitleBar)
+        imgui.MainWindowHeader() 
         imgui.Text(instructionsText)
         imgui.Separator()
         if stage == "off" then
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
-            if imgui.Button(u8"Выбрать ячейку", imgui.ImVec2(200, 50)) then
-                local found = false
-                for i,v in ipairs(inventoryItem) do
-                    if sampTextdrawIsExists(inventoryItem[i]) then found = true break end
-                end
-                if found then stage = "select" else stage = "select" sampSendChat("/invent") end
-            end
+            if imgui.Button(u8"Выбрать ячейку", imgui.ImVec2(200, 50)) then stage = "select" end
         end
         if stage == "select" then
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-100)
@@ -307,7 +287,7 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end,
             imgui.SetCursorPosX(imgui.GetWindowWidth()/2-200)
             if imgui.Button(u8"Начать открытие", imgui.ImVec2(200, 50)) then
                 stage = "opening"
-                openStage = "select"
+                --openStage = "select"
             end
             imgui.SameLine()
             if imgui.Button(u8"Выбрать заново", imgui.ImVec2(200, 50)) then
@@ -390,7 +370,7 @@ imgui.OnFrame(function() return WinState[0] and not PriceState[0] end,
                 sms("Статистика сброшена")
             end
         end
-        imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))
+        --imgui.Link("https://romanespit.ru/lua",u8"© "..table.concat(scr.authors, ", "))
         imgui.End()
     end
 )
@@ -421,6 +401,53 @@ function onScriptTerminate(scr, is_quit)
         tech_sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
 	end
 end
+function cefSend(text)
+    local bs = raknetNewBitStream()
+	raknetBitStreamWriteInt8(bs, 220)
+	raknetBitStreamWriteInt8(bs, 18)
+	raknetBitStreamWriteInt16(bs, string.len(text))
+	raknetBitStreamWriteString(bs, text)
+	raknetSendBitStreamEx(bs, 1, 7, 1)
+	raknetDeleteBitStream(bs)
+end
+function onSendPacket(id, bs)
+    if id == 220 then
+		raknetBitStreamIgnoreBits(bs, 8)
+        if raknetBitStreamReadInt8(bs) == 18 then
+            local text = raknetBitStreamReadString(bs, raknetBitStreamReadInt16(bs))
+            --sms("stage="..stage.."|text="..text)
+			if stage == "select" and text:find("rightClickOnBlock|.+") then
+                local inv = json.decode(text:match("rightClickOnBlock|(.+)")) -- {"slot": 26, "type": 1}
+                selectedItem = inv.slot
+                sms("Выбран "..selectedItem.." слот инвентаря")
+                stage = "selected"
+                --cefSend('clickOnButton|{"type": 1,"slot": '..selectedItem..', "action": 32}')
+                --sms("stage = selected")
+                return false
+            end
+        end
+    end
+end
+function onReceivePacket(id, bs)
+	if id == 220 then
+		raknetBitStreamIgnoreBits(bs, 8)
+		if raknetBitStreamReadInt8(bs) == 17 then
+			raknetBitStreamIgnoreBits(bs, 32)
+            local length = raknetBitStreamReadInt16(bs)
+            local encoded = raknetBitStreamReadInt8(bs)
+            local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
+			-- window.executeEvent('event.inventory.playerInventory', `[{"action":2,"data":{"type":1,"items":[{"slot":38}]}}]`);
+            -- window.executeEvent('event.inventory.playerInventory', `[{"action":2,"data":{"type":1,"items":[{"slot":85}]}}]`);
+            -- window.executeEvent('event.inventory.playerInventory', `[{"action":2,"data":{"type":1,"items":[{"slot":85,"item":4794,"amount":1,"text":"","available":1,"blackout":0,"time":0}]}}]`);
+            if text:find('window.executeEvent') and text:find('event.inventory.playerInventory') and stage == "opening" then
+                local payload = json.decode(text:match('`(.+)`'))
+                if payload[1].data.items[1].slot == selectedItem then
+                    if payload[1].data.items[1].item == nil then stopOpening("Ларцы в ячейке кончились") end
+                end
+            end
+        end
+    end
+end
 function main()
 	while not isSampAvailable() do wait(0) end
 	thread = lua_thread.create(function() return end)
@@ -438,15 +465,12 @@ function main()
         if not WinState[0] and stage == "opening" then
             stopOpening("Окно скрипта было закрыто, открытие остановлено #M-1")
         end
-        if thread:status() == "dead" and ((stage == "opening" and openStage == "select") or (os.clock()-antiLagTimer > 0.37 and openStage == "pushUse")) then
+        if thread:status() == "dead" and stage == "opening" and selectedItem ~= 0 then
 			thread = lua_thread.create(function() 
-                openStage = "checkModel"                
-                selectedModel = sampTextdrawGetModelRotationZoomVehColor(selectedItem) 
-                --if selectedModel == 0 or selectedModel == 1649 or selectedModel == 13 then stopOpening("Ларцы в ячейке закончились #M-2") end
-                openStage = "waiting" 
-                sampSendClickTextdraw(selectedItem)
-                openStage = "pushUse"
-                antiLagTimer = os.clock()
+                wait(50)
+                cefSend('clickOnButton|{"type": 1,"slot": '..selectedItem..', "action": 1}')
+                --cefSend('inventory.moveItemForce|{"slot": '..selectedItem..', "type": 1, "amount": 1}')
+                --clickOnButton|{"type": 1,"slot": 26, "action": 1}
 			end)
 		end
     end  
@@ -477,7 +501,6 @@ function hook.onServerMessage(color,text)
     _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     myNick = sampGetPlayerNickname(myid)
     if stage == "opening" then
-        --Con_Serve испытал удачу при открытии 'Super Car Box' и выиграл транспорт: Сертификат Daewoo Lanox 6x6
         if text:find("([A-Za-z0-9%a]+_[A-Za-z0-9%a]+) испытал удачу при открытии '([^']*)' и выиграл транспорт: (.+)") and text:find(myNick) then
             stopOpening("Транспорт успешно выбит, открытие остановлено #OSM-1")
         end
@@ -523,54 +546,6 @@ function hook.onServerMessage(color,text)
         end)
     end
 end
--- 
--- 
-
-function hook.onSendClickTextDraw(id)
-    LastClickedTD = id
-    if id == 2112 or id == button.Close then
-        if stage ~= "off" then
-            stopOpening("Инвентарь был закрыт, открытие остановлено #OSCTD-0")
-        end
-        actualPage = 1
-    end
-    if id == button.Page[1] then actualPage = 1 if stage ~= "off" and stage ~= "select" then stopOpening("Страница была изменена, открытие остановлено #OSCTD-1") end end
-    if id == button.Page[2] then actualPage = 2 if stage ~= "off" and stage ~= "select" then stopOpening("Страница была изменена, открытие остановлено #OSCTD-2") end end
-    if id == button.Page[3] then actualPage = 3 if stage ~= "off" and stage ~= "select" then stopOpening("Страница была изменена, открытие остановлено #OSCTD-3") end end
-    if id == button.Page[4] then actualPage = 4 if stage ~= "off" and stage ~= "select" then stopOpening("Страница была изменена, открытие остановлено #OSCTD-4") end end
-    if id == button.Page[5] then actualPage = 5 if stage ~= "off" and stage ~= "select" then stopOpening("Страница была изменена, открытие остановлено #OSCTD-5") end end
-    if id == button.Page[6] then actualPage = 6 if stage ~= "off" and stage ~= "select" then stopOpening("Страница была изменена, открытие остановлено #OSCTD-6") end end
-    if id ~= selectedItem and stage == "opening" then
-        stopOpening("Был нажат другой TextDraw, открытие остановлено #OSCTD-7")
-        return false
-    end
-    if stage == "select" then
-        for i,v in ipairs(inventoryItem) do
-            if inventoryItem[i] == id then 
-                selectedModel = sampTextdrawGetModelRotationZoomVehColor(id)
-                selectedItem = id
-                if selectedModel == 0 or selectedModel == 1649 or selectedModel == 13 then sms("Кажется в ячейке пусто, выберите другую") selectedItem = 0
-                else stage = "selected" sms("Ячейка была успешно выбрана - tdID:"..id.." | Model: "..selectedModel) end
-                return false
-            end
-        end
-    end
-end
-function hook.onTextDrawSetString(id,text)
-    if stage == "opening" and id ~= button.Use and id ~= selectedItem and sampTextdrawGetModelRotationZoomVehColor(id) ~= selectedModel then return false end
-end
-function hook.onTextDrawHide(id)
-    if stage == "opening" and id ~= button.Use and id ~= selectedItem and sampTextdrawGetModelRotationZoomVehColor(id) ~= selectedModel then return false end -- посл условие для теста, мб убрать
-end
-function hook.onShowTextDraw(id,data)     
-    if stage == "opening" and id ~= button.Use and id ~= selectedItem and sampTextdrawGetModelRotationZoomVehColor(id) ~= selectedModel then return false end
-    if openStage == "pushUse" and id == button.Use then
-        openStage = "useButtonReceived"
-        selectedModel = sampTextdrawGetModelRotationZoomVehColor(selectedItem)
-        if selectedModel == 0 or selectedModel == 1649 or selectedModel == 13 then stopOpening("Ларцы в ячейке закончились #OSTD-1") return false
-        else sampSendClickTextdraw(id) openStage = "select" end        
-    end
-end
 function stopOpening(reason)
     stage = "off"
     openStage = "off"
@@ -589,6 +564,50 @@ function imgui.Link(link, text)
     local color = imgui.IsItemHovered() and col[1] or col[2]
     DL:AddText(p, color, text)
     DL:AddLine(imgui.ImVec2(p.x, p.y + tSize.y), imgui.ImVec2(p.x + tSize.x, p.y + tSize.y), color)
+end
+function imgui.MainWindowHeader()
+    imgui.SetCursorPosY(5)
+    imgui.SetCursorPosX(10)
+    if imgui.Button(faicons.BUG.."##reportbug", imgui.ImVec2(40, 25)) then print(shell32.ShellExecuteA(nil, 'open', "https://github.com/romanespit/ScriptStorage/blob/main/HOWTO-REPORT.md", nil, nil, 1)) end
+    if imgui.IsItemHovered() then
+        imgui.SetTooltip(u8"Сообщить о проблеме или предложить что-то новое")
+    end
+    imgui.SameLine()
+    imgui.SetCursorPosX(60)
+    if imgui.Button(faicons.GLOBE.."##siteurl", imgui.ImVec2(40, 25)) then print(shell32.ShellExecuteA(nil, 'open', "https://romanespit.ru/", nil, nil, 1)) end
+    if imgui.IsItemHovered() then
+        imgui.SetTooltip(u8"Перейти на сайт разработчика")
+    end
+    imgui.SameLine()
+    imgui.SetCursorPosY(4)
+    imgui.PushFont(MiddleFont)
+        imgui.CenterText(u8(SCRIPT_TITLE))  
+    imgui.PopFont()
+    imgui.SameLine()
+    
+    imgui.SetCursorPosY(5)
+    --[[imgui.SetCursorPosX(imgui.GetWindowWidth()-150)
+    if imgui.Button(faicons.ARROWS_ROTATE.."##updatescripts", imgui.ImVec2(40, 25)) then checkUpdates() sms(EOK.."Данные о скриптах обновлены") end
+    if imgui.IsItemHovered() then
+        imgui.SetTooltip(u8"Нажмите, чтобы обновить данные о скриптах")
+    end
+    imgui.SameLine()]]
+    imgui.SetCursorPosX(imgui.GetWindowWidth()-100)
+    if imgui.Button(faicons.ROTATE_RIGHT.."##reload", imgui.ImVec2(40, 25)) then reloaded = true scr:reload() end
+    if imgui.IsItemHovered() then
+        imgui.SetTooltip(u8"Нажмите, чтобы перезагрузить скрипт")
+    end
+    imgui.SameLine()
+    imgui.SetCursorPosX(imgui.GetWindowWidth()-50)
+    if imgui.Button(faicons.XMARK.."##closewindow", imgui.ImVec2(40, 25)) then WinState[0] = false end
+    imgui.Separator()
+end
+
+function imgui.CenterText(text)
+    local width = imgui.GetWindowWidth()
+    local calc = imgui.CalcTextSize(text)
+    imgui.SetCursorPosX( width / 2 - calc.x / 2 )
+    imgui.Text(text)
 end
 ------------------------ MimGUI Style
 function MimStyle()

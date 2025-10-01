@@ -3,7 +3,7 @@
 ------------------------ Main Variables
 script_author("JustFedot","romanespit")
 script_name("Gas Station AutoFill")
-script_version("1.0.0")
+script_version("1.0.1")
 local scr = thisScript()
 SCRIPT_SHORTNAME = "AutoFill"
 MAIN_CMD = "af"
@@ -43,7 +43,7 @@ function main()
     wait(-1)
 end
 function onSendPacket(id, bs)
-    if id == 220 then
+    if id == 220 and WORK then
 		raknetBitStreamIgnoreBits(bs, 8)
         if raknetBitStreamReadInt8(bs) == 18 then
             local text = raknetBitStreamReadString(bs, raknetBitStreamReadInt16(bs))
@@ -67,7 +67,7 @@ function cefSend(text)
 	raknetDeleteBitStream(bs)
 end
 function onReceivePacket(id, bs)
-	if id == 220 then
+	if id == 220 and WORK then
 		raknetBitStreamIgnoreBits(bs, 8)
 		if raknetBitStreamReadInt8(bs) == 17 then
 			raknetBitStreamIgnoreBits(bs, 32)

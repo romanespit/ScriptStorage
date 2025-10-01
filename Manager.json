@@ -27,13 +27,13 @@
         "label":""
     },
     "AutoFill": {
-        "release_date": "10.05.2025",
+        "release_date": "01.10.2025",
         "author": "JustFedot",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/AutoFill/AutoFill.lua?raw=true",
         "main_cmd": "¬ключено автоматически, переключать - /af",
         "description": "—крипт автоматически заправл€ет на заправках авто\n‘икс скрипта JustFedot - {FFFF00}[JF] AutoFill\n\n{4682B4}Rest in peace, legend!",
-        "label":""
+        "label":"‘икс"
     },
     "AutoBizTaxes": {
         "release_date": "12.07.2025",
@@ -116,20 +116,11 @@
         "description": "—крипт, ускор€ющий и автоматизирующий открытие рулеток\n(бронзовых, серебр€ных, золотых, платиновых)",
         "label":"ќбновлен"
     },
-    "Fix3dTexts": {
-        "release_date": "05.05.2025",
-        "author": "XRLM",
-        "version": "1.0.0",
-        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/Fix3dTexts.lua?raw=true",
-        "main_cmd": "ќтсутствует, активаци€ автоматическа€",
-        "description": "—крипт, исправл€ющий работу многих скриптов, работающих с 3D текстами",
-        "label":""
-    },
     "LavkaNespit": {
         "release_date": "15.09.2025",
         "author": "romanespit",
         "version": "1.1.2",
-        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/LavkaNespit.lua?raw=true",
+        "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/LavkaNespit/LavkaNespit.lua?raw=true",
         "main_cmd": "/rlavka",
         "description": "—крипт, отрисовывающий круги вокруг лавок, чтобы фармилы могли тыкнуть свою лавку\nƒл€ того, чтобы найти свою лавку, введите {36C500}/mylavka",
         "label":"ќбновлен"

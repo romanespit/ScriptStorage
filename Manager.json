@@ -10,7 +10,7 @@
     },
     "AntiCarLoss": {
         "release_date": "13.07.2025",
-        "author": "БеzликиЙ",
+        "author": "БеzликиЙ ([07]Alex_Torvalds)",
         "version": "1.0.0",
         "lua_url": "https://github.com/romanespit/ScriptStorage/blob/main/extraScripts/AntiCarLoss.lua?raw=true",
         "main_cmd": "Отсутствует, активация автоматическая",

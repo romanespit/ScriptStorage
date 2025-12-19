@@ -1,7 +1,7 @@
 ------------------------ Main Variables
 script_author("romanespit")
 script_name("Roulette Opener")
-script_version("1.5.2")
+script_version("1.5.3")
 local scr = thisScript()
 local SCRIPT_TITLE = scr.name.." v"..scr.version
 SCRIPT_SHORTNAME = "RouletteOpener"
@@ -188,6 +188,7 @@ function onScriptTerminate(scr, is_quit)
         tech_sms("Скрипт непредвиденно выключился! Проверьте консоль SAMPFUNCS.")
 	end
 end
+OPENTIME = os.time()
 function onSendPacket(id, bs)
     if id == 220 then
 		raknetBitStreamIgnoreBits(bs, 8)
@@ -203,6 +204,7 @@ function onSendPacket(id, bs)
                     thread = lua_thread.create(function()
                         wait(300)
                         cefSend("crate.roulette.open")
+                        OPENTIME = os.time()
                         --print("[DBG] Send cef crate.roulette.open | "..stage)
                     end)
                 end
@@ -281,6 +283,20 @@ function main()
 	tech_sms("Успешная загрузка скрипта. Используйте: ".. COLOR_MAIN .."/"..MAIN_CMD.."{FFFFFF}. Автор: "..COLOR_MAIN..table.concat(scr.authors, ", ")) -- Приветственное сообщение
     while true do
 		wait(0)
+        if started then
+            if cfg.HasCompass == true then 
+                if os.time() > OPENTIME+1 then
+                    cefSend("crate.roulette.open")
+                    OPENTIME = os.time()
+                end                          
+            else
+                if os.time() > OPENTIME+1+cfg.Timer then
+                    cefSend("crate.roulette.open")
+                    OPENTIME = os.time()
+                end 
+            end 
+            
+        end
     end  
     wait(-1)
 end
